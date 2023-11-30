@@ -1,0 +1,5 @@
+rootProject.name = 'openjava-probe'
+include 'probe-boot'
+include 'probe-agent'
+include 'probe-shared'
+include 'probe-core'

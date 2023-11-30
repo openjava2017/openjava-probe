@@ -1,0 +1,8 @@
+jar.archiveBaseName = 'probe-agent'
+
+dependencies {
+    implementation project(":probe-core")
+    implementation project(":probe-shared")
+    implementation 'org.ow2.asm:asm:9.6'
+    implementation 'org.ow2.asm:asm-commons:9.6'
+}
