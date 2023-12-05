@@ -70,6 +70,16 @@ public class ProbeAgentServer extends LifeCycle {
         this.instrumentation.addTransformer(transformerManager, true);
         this.commandExecutor.start();
         ProbeMethodAPI.installMethodListener(new ThreadLocalMethodListener());
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                try {
+                    ProbeAgentServer.this.stop();
+                } catch (Exception ex) {
+                    // Ignore it
+                }
+            }
+        });
     }
 
     protected void doStop() throws Exception {
@@ -142,8 +152,8 @@ public class ProbeAgentServer extends LifeCycle {
 
         protected void doStop() throws Exception {
             super.doStop();
-            for (Long sessionId : sessions.keySet()) {
-                sessions.get(sessionId).destroy();
+            for (Map.Entry<Long, Session> entry : sessions.entrySet()) {
+                entry.getValue().destroy();
             }
             sessions.clear();
         }

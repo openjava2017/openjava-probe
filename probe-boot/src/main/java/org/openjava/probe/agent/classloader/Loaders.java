@@ -12,12 +12,6 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipFile;
 
-/**
- * 资源加载器定义
- *
- * @author: brenthuang
- * @date: 2021/12/29
- */
 class Loaders {
     static class FileLoader extends URLLoader {
 
@@ -40,7 +34,6 @@ class Loaders {
             try {
                 URL url = new URL(getBaseURL(), name);
                 if (url.getFile().contains("%") || !url.getFile().startsWith(getBaseURL().getFile())) {
-                    // 路径中包含特殊字符(已被编码成%xx)或../..，则返回空
                     return null;
                 }
 
@@ -93,14 +86,13 @@ class Loaders {
         private final JarFile jarFile;
         private final boolean parseClassPath;
         /**
-         * url格式: file:/your_path/my.jar; http://www.hostname.com/your_path/my.jar
+         * url format: file:/your_path/my.jar; http://www.hostname.com/your_path/my.jar
          */
         public JarLoader(URL url, boolean parseClassPath) throws IOException {
             super(new URL("jar", "", -1, url + "!/"));
             this.sourceURL = url;
             this.parseClassPath = parseClassPath;
             this.jarFile = openJarFile(sourceURL);
-            //TODO: 处理解析jar index
         }
 
         @Override
@@ -141,14 +133,11 @@ class Loaders {
                     }
                 };
             }
-            // TODO: 处理签名过的JAR文件
-
             return null;
         }
 
         @Override
         public URL[] getClassPath() throws IOException {
-            // JarFile.hasClassPathAttribute方法不能被外部访问, 为优化类加载性能暂屏蔽此方法
             if (!parseClassPath) return null;
 
             Manifest man = jarFile.getManifest();
@@ -184,7 +173,6 @@ class Loaders {
 
         private JarFile openJarFile(URL url) throws IOException {
             if ("file".equals(url.getProtocol())) {
-                // 本地文件系统加载以优化加载性能
                 String path = checkPath(url.getFile());
                 if (path == null) {
                     throw new FileNotFoundException();
@@ -259,15 +247,11 @@ class Loaders {
             return null;
         }
 
-        /**
-         * 本地文件系统路径目前不支持特殊字符, URL.getPath/getFile不允许特殊字符; URL路径中的特殊字符都已经编码成%xx
-         */
         protected String checkPath(String path) {
             if (path != null) {
                 if (path.contains("%")) {
                     throw new IllegalArgumentException("file path not supported: " + path);
                 }
-                // 替换成本地文件目录分隔符
                 return path.replace('/', File.separatorChar);
             } else {
                 return null;

@@ -3,9 +3,6 @@ package org.openjava.probe.shared.util;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 通用工具类
- */
 public class ObjectUtils {
     public static boolean equals(String str1, String str2) {
         if (str1 == str2) {

@@ -7,20 +7,13 @@ import java.util.Deque;
 import java.util.List;
 
 /**
- * 用于维护加载类的搜索路径, URL格式:
- *
  * file:/your_path/my.jar
  * file:/your_path/
  * jar:file:/your_path/my.jar!/
  * jar:http://www.hostname.com/your_path/my.jar!/
- *
- * @author: brenthuang
- * @date: 2021/12/29
  */
 class URLClassPath {
-    // 所有搜索路径
     private final List<URL> urls;
-    // 待处理的搜索路径
     private final Deque<URL> pendingUrls;
 
     public URLClassPath(URL[] urls) {

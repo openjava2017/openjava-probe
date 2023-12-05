@@ -6,3 +6,27 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.6'
     implementation 'org.ow2.asm:asm-commons:9.6'
 }
+
+jar {
+    manifestContentCharset 'utf-8'
+    metadataCharset 'utf-8'
+    manifest {
+        attributes 'Class-Path': configurations.compileClasspath.files.collect {"$it.name"}.join(' ')
+        attributes "Specification-Title" : project.name
+        attributes "Specification-Version" : project.version
+        attributes "Implementation-Title" : project.name
+        attributes "Implementation-Version" : project.version
+    }
+    from { // 打包test类
+        sourceSets.test.output
+    }
+}
+
+task copyJars(type: Copy) { // 将依赖包拷贝至build/libs下
+    from configurations.compileClasspath
+    into "$buildDir\\libs"
+}
+
+build {
+    dependsOn copyJars
+}

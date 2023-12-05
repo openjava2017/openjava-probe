@@ -7,12 +7,6 @@ import java.io.InterruptedIOException;
 import java.net.URL;
 import java.util.Arrays;
 
-/**
- * 资源模型
- *
- * @author: brenthuang
- * @date: 2021/12/29
- */
 public abstract class Resource {
     // The name of resource
     public abstract String getName();

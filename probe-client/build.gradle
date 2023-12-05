@@ -1,4 +1,4 @@
-jar.archiveBaseName = 'probe-boot'
+jar.archiveBaseName = 'probe-client'
 
 dependencies {
 
@@ -8,10 +8,7 @@ jar {
     manifestContentCharset 'utf-8'
     metadataCharset 'utf-8'
     manifest {
-        attributes "Can-Redefine-Classes" : true
-        attributes "Can-Retransform-Classes" : true
-        attributes "Premain-Class" : "org.openjava.probe.agent.boot.AgentBootstrap"
-        attributes "Agent-Class" : "org.openjava.probe.agent.boot.AgentBootstrap"
+        attributes "Main-Class" : "org.openjava.probe.agent.boot.AgentBootstrap"
         attributes "Specification-Title" : project.name
         attributes "Specification-Version" : project.version
         attributes "Implementation-Title" : project.name

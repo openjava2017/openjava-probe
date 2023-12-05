@@ -74,10 +74,10 @@ public class ClassTransformerManager implements ClassFileTransformer {
             clazz.isAnonymousClass() || clazz.isPrimitive()) {
             return false;
         }
-        // for safety reason
+        // for safety reason: System Class, Probe Class not allowed to be enhanced
         ClassLoader classLoader = clazz.getClassLoader();
         if (classLoader == null || classLoader == ClassLoader.getPlatformClassLoader() ||
-            classLoader == ClassLoader.getSystemClassLoader()) {
+            classLoader == ClassLoader.getSystemClassLoader() || classLoader == getClass().getClassLoader()) {
             return false;
         }
         return true;
