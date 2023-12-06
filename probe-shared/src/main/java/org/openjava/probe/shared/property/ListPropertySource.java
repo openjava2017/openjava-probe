@@ -3,9 +3,9 @@ package org.openjava.probe.shared.property;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class ChainPropertySource extends PropertySource<LinkedList<PropertySource<?>>> implements PropertySourceRegister {
+public class ListPropertySource extends PropertySource<LinkedList<PropertySource<?>>> implements PropertySourceRegister {
 
-    public ChainPropertySource(String name, LinkedList<PropertySource<?>> source) {
+    public ListPropertySource(String name, LinkedList<PropertySource<?>> source) {
         super(name, source);
     }
 

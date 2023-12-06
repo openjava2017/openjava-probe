@@ -1,12 +1,12 @@
 package org.openjava.probe.agent.env;
 
 import org.openjava.probe.shared.property.AbstractPropertyResolver;
-import org.openjava.probe.shared.property.ChainPropertySource;
+import org.openjava.probe.shared.property.PropertySource;
 
-public class EnvironmentPropertyResolver extends AbstractPropertyResolver {
-    private final ChainPropertySource propertySource;
+public class ProbePropertyResolver extends AbstractPropertyResolver {
+    private final PropertySource propertySource;
 
-    public EnvironmentPropertyResolver(ChainPropertySource propertySource) {
+    public ProbePropertyResolver(PropertySource propertySource) {
         this.propertySource = propertySource;
         setIgnoreUnresolvablePlaceholders(false);
     }

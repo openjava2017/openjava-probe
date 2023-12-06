@@ -43,8 +43,8 @@ public class ProbeAgentServer extends LifeCycle {
         // two threads needed at least, one for nio processor and another for command executor
         this.executorService = Executors.newFixedThreadPool(2, ProbeThreadFactory.getInstance());
 
-        String host = this.environment.getRequiredProperty("probe.host");
-        int port = this.environment.getRequiredProperty("probe.port", Integer.class);
+        String host = this.environment.getRequiredProperty("probe.server.host");
+        int port = this.environment.getRequiredProperty("probe.server.port", Integer.class);
         this.commandExecutor = new SocketServerImpl(host, port);
     }
 
