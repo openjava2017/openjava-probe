@@ -10,6 +10,7 @@ import org.openjava.probe.agent.session.SessionState;
 import org.openjava.probe.agent.transformer.ClassTransformerManager;
 import org.openjava.probe.shared.ErrorCode;
 import org.openjava.probe.shared.exception.ProbeServiceException;
+import org.openjava.probe.shared.message.Message;
 
 public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
 
@@ -34,7 +35,7 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
             transformerManager.enhance(context.instrumentation(), param.className, param.methodName, callback);
             System.out.println("monitor command execute: " + param.maxTimes);
         } else {
-            session.write("Illegal user session state");
+            session.write(Message.ofMessage("Illegal user session state"));
         }
     }
 

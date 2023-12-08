@@ -1,4 +1,4 @@
-package org.openjava.probe.agent.session;
+package org.openjava.probe.client.session;
 
 import org.openjava.probe.shared.OutputStream;
 import org.openjava.probe.shared.message.Message;

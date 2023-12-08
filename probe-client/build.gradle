@@ -1,7 +1,7 @@
 jar.archiveBaseName = 'probe-client'
 
 dependencies {
-
+    implementation project(":probe-shared")
 }
 
 jar {

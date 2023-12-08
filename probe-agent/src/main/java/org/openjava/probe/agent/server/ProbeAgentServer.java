@@ -17,12 +17,14 @@ import org.openjava.probe.shared.LifeCycle;
 import org.openjava.probe.shared.exception.ProbeServiceException;
 import org.openjava.probe.shared.log.Logger;
 import org.openjava.probe.shared.log.LoggerFactory;
+import org.openjava.probe.shared.message.Message;
+import org.openjava.probe.shared.message.MessageHeader;
+import org.openjava.probe.shared.message.PayloadHelper;
 import org.openjava.probe.shared.nio.AbstractSocketServer;
 import org.openjava.probe.shared.nio.session.INioSession;
 import org.openjava.probe.shared.util.ProbeThreadFactory;
 
 import java.lang.instrument.Instrumentation;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -90,7 +92,7 @@ public class ProbeAgentServer extends LifeCycle {
         MethodAdviceManager.getInstance().clearAllMethodAdvices();
     }
 
-    public class SocketServerImpl extends AbstractSocketServer implements CommandExecutor {
+    private class SocketServerImpl extends AbstractSocketServer implements CommandExecutor {
         private final BlockingQueue<CommandWrapper> commands = new LinkedBlockingQueue<>();
         private final Map<Long, Session> sessions = new ConcurrentHashMap<>();
 
@@ -119,10 +121,14 @@ public class ProbeAgentServer extends LifeCycle {
         public void onDataReceived(final INioSession nioSession, final byte[] packet) {
             Session session = sessions.get(nioSession.getId());
             if (session != null) {
-                String message = new String(packet, StandardCharsets.UTF_8);
-                Context context = ExecuteContext.of(environment, instrumentation, session);
-                CommandWrapper command = CommandWrapper.of(context, message);
-                submit(command);
+                Message message = Message.from(packet);
+                if (MessageHeader.USER_MESSAGE.equalTo(message.header())) {
+                    Context context = ExecuteContext.of(environment, instrumentation, session);
+                    CommandWrapper command = CommandWrapper.of(context, message.payload(PayloadHelper.STRING_DECODER));
+                    submit(command);
+                } else {
+                    LOG.error("Ignore the command from the client: suppose it never happened");
+                }
             } else {
                 LOG.error("User session not found: {}", nioSession.getId());
             }
@@ -132,7 +138,7 @@ public class ProbeAgentServer extends LifeCycle {
             super.doStart();
             // all the commands are executed in one independent thread for thread-safe reason
             ProbeAgentServer.this.executorService.execute(() -> {
-                LOG.info("Command execute thread started");
+                LOG.info("Probe command execute thread started");
                 while (isRunning()) {
                     try {
                         CommandWrapper command = commands.poll(5, TimeUnit.SECONDS);
@@ -143,10 +149,10 @@ public class ProbeAgentServer extends LifeCycle {
                         if (Thread.interrupted()) {
                             break;
                         }
-                        LOG.error("Command execute exception", ex);
+                        LOG.error("Probe command execute exception", ex);
                     }
                 }
-                LOG.info("Command execute thread terminate");
+                LOG.info("Probe command execute thread terminated");
             });
         }
 

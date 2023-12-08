@@ -70,6 +70,7 @@ public abstract class AbstractSocketClient extends LifeCycle {
         LOG.info("Client socket processor manager started");
     }
 
+    @Override
     protected void doStop() throws Exception {
         this.processors[0].stop();
         LOG.info("Client socket processor manager stopped");

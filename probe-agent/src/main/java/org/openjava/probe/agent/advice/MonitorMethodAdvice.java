@@ -2,6 +2,7 @@ package org.openjava.probe.agent.advice;
 
 import org.openjava.probe.agent.data.MonitorModel;
 import org.openjava.probe.agent.data.MonitorView;
+import org.openjava.probe.shared.message.Message;
 
 public class MonitorMethodAdvice extends ProbeMethodAdvice {
 
@@ -25,8 +26,9 @@ public class MonitorMethodAdvice extends ProbeMethodAdvice {
         TIME_THREAD_LOCAL.remove();
         if (start != null) {
             long costTime = System.currentTimeMillis() - start;
-            session().write(String.format("%s.%s[success] consumes %s milliseconds",
+            Message message = Message.ofMessage(String.format("%s.%s[success] consumes %s milliseconds",
                 pointcut.clazz().getSimpleName(), pointcut.methodName(), costTime));
+            session().write(message);
             data.push(true, costTime);
         }
     }
@@ -37,8 +39,9 @@ public class MonitorMethodAdvice extends ProbeMethodAdvice {
         TIME_THREAD_LOCAL.remove();
         if (start != null) {
             long costTime = System.currentTimeMillis() - start;
-            session().write(String.format("%s.%s[failed] consumes %s milliseconds",
+            Message message = Message.ofMessage(String.format("%s.%s[failed] consumes %s milliseconds",
                 pointcut.clazz().getSimpleName(), pointcut.methodName(), costTime));
+            session().write(message);
             data.push(false, costTime);
         }
     }
