@@ -11,8 +11,14 @@ public class ExitCommand extends MessageCommand {
     @Override
     public void execute(Context context) {
         Session session = context.session();
-        if (session.setState(SessionState.IDLE) == SessionState.BUSY) {
-            //TODO: clean
+        if (param != null) {
+            System.out.println(param);
+        }
+
+        if(session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
+            synchronized (session) {
+                session.notify();
+            }
         }
     }
 }

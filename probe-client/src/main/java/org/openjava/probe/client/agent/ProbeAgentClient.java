@@ -11,6 +11,8 @@ import org.openjava.probe.shared.LifeCycle;
 import org.openjava.probe.shared.log.Logger;
 import org.openjava.probe.shared.log.LoggerFactory;
 import org.openjava.probe.shared.message.Message;
+import org.openjava.probe.shared.message.MessageHeader;
+import org.openjava.probe.shared.message.PayloadHelper;
 import org.openjava.probe.shared.nio.AbstractSocketClient;
 import org.openjava.probe.shared.nio.session.INioSession;
 import org.openjava.probe.shared.nio.session.ISessionDataListener;
@@ -20,7 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class ProbeAgentClient extends LifeCycle {
+public class ProbeAgentClient extends LifeCycle implements UserCommandListener {
     private static final Logger LOG = LoggerFactory.getLogger(ProbeAgentClient.class);
 
     private final Environment environment;
@@ -35,6 +37,16 @@ public class ProbeAgentClient extends LifeCycle {
         int port = environment.getRequiredProperty("probe.server.port", Integer.class);
         int timeout = environment.getProperty("probe.client.connTimeOut", Integer.class, 4000);
         this.client = new SocketClientImpl(host, port, timeout, executorService);
+    }
+
+    public void onCommand(String command) {
+        if (command.length() > 0) {
+            this.client.send(Message.of(MessageHeader.USER_COMMAND, command, PayloadHelper.STRING_ENCODER));
+        }
+    }
+
+    public boolean requireIdle() throws InterruptedException {
+        return this.client.requireIdle();
     }
 
     @Override
@@ -64,6 +76,10 @@ public class ProbeAgentClient extends LifeCycle {
             this.session.write(message);
         }
 
+        public boolean requireIdle() throws InterruptedException {
+            return this.session.requireIdle();
+        }
+
         @Override
         protected void doStart() throws Exception {
             super.doStart();
@@ -73,9 +89,11 @@ public class ProbeAgentClient extends LifeCycle {
                 while (isRunning()) {
                     try {
                         Message message = commands.poll(5, TimeUnit.SECONDS);
-                        Command userCommand = UserCommandFactory.getInstance().getCommand(message.header(), message.payload());
-                        Context context = UserContext.of(environment, session);
-                        userCommand.execute(context);
+                        if (message != null) {
+                            Command userCommand = UserCommandFactory.getInstance().getCommand(message.header(), message.payload());
+                            Context context = UserContext.of(environment, session);
+                            userCommand.execute(context);
+                        }
                     } catch (Exception ex) {
                         if (Thread.interrupted()) {
                             break;
@@ -91,6 +109,16 @@ public class ProbeAgentClient extends LifeCycle {
         protected void doStop() throws Exception {
             this.session.destroy();
             super.doStop();
+        }
+
+        protected void onSessionClosed(INioSession session) {
+            try {
+                ProbeAgentClient.this.stop();
+            } catch (Exception ex) {
+                LOG.error("Probe agent client stop exception", ex);
+                System.exit(1);
+            }
+            System.exit(0);
         }
     }
 }

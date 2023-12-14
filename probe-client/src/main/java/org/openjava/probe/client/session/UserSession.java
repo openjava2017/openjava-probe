@@ -1,5 +1,6 @@
 package org.openjava.probe.client.session;
 
+import org.openjava.probe.shared.message.Message;
 import org.openjava.probe.shared.nio.session.INioSession;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -15,6 +16,25 @@ public class UserSession extends SessionOutputAdapter implements Session {
     @Override
     public long id() {
         return session.getId();
+    }
+
+    @Override
+    public void write(Message message) {
+        if (compareAndSet(SessionState.IDLE, SessionState.BUSY)) {
+            super.write(message);
+        } else {
+            System.err.println("Cannot send the user command: user session is busy or closed");
+        }
+    }
+
+    @Override
+    public boolean requireIdle() throws InterruptedException {
+        if (this.state.get() == SessionState.BUSY) {
+            synchronized (this) {
+                this.wait();
+            }
+        }
+        return this.state.get() == SessionState.IDLE;
     }
 
     @Override

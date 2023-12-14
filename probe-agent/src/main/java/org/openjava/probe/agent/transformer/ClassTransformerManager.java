@@ -60,7 +60,8 @@ public class ClassTransformerManager implements ClassFileTransformer {
                 transformers.add(transformer);
                 instrumentation.retransformClasses(matchedClass);
             } catch (Throwable ex) {
-                LOG.warn("retransform class {} failed.", matchedClass, ex);
+                ex.printStackTrace();
+                LOG.warn("re-transform class {} failed.", matchedClass, ex);
             } finally {
                 if (transformers != null) {
                     transformers.remove(transformer);

@@ -56,7 +56,6 @@ public class MethodAdviceManager {
                     if (advice.id() == adviceId) {
                         iterator.remove();
                     }
-                    advice.destroy();
                 }
             }
         }

@@ -3,6 +3,7 @@ package org.openjava.probe.agent.command;
 import org.openjava.probe.shared.util.AssertUtils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -42,6 +43,10 @@ public class ProbeCommandFactory implements CommandFactory {
         Class<? extends ProbeCommand> clazz = commands.get(probeCommand.toLowerCase());
         AssertUtils.notNull(clazz, "unrecognized command");
         Constructor<? extends ProbeCommand> constructor = clazz.getConstructor(String[].class);
-        return constructor.newInstance(new Object[] {params});
+        try {
+            return constructor.newInstance(new Object[]{params});
+        } catch (InvocationTargetException ex) {
+            throw (Exception) ex.getCause();
+        }
     }
 }

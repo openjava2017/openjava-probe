@@ -51,14 +51,14 @@ public class ProbeAgentServer extends LifeCycle {
     }
 
     public static synchronized ProbeAgentServer getInstance(String args, Instrumentation instrumentation) {
-        if (agentServer != null) {
+        if (agentServer == null) {
             agentServer = new ProbeAgentServer(new ProbeEnvironment(args), instrumentation);
         }
         return agentServer;
     }
 
     public static synchronized ProbeAgentServer getInstance() {
-        if (agentServer == null || agentServer.isStarted()) {
+        if (agentServer == null || !agentServer.isStarted()) {
             throw new ProbeServiceException(ErrorCode.ILLEGAL_STATE_ERROR, "Agent Server not inited");
         }
         return agentServer;
@@ -122,7 +122,7 @@ public class ProbeAgentServer extends LifeCycle {
             Session session = sessions.get(nioSession.getId());
             if (session != null) {
                 Message message = Message.from(packet);
-                if (MessageHeader.USER_MESSAGE.equalTo(message.header())) {
+                if (MessageHeader.USER_COMMAND.equalTo(message.header())) {
                     Context context = ExecuteContext.of(environment, instrumentation, session);
                     CommandWrapper command = CommandWrapper.of(context, message.payload(PayloadHelper.STRING_DECODER));
                     submit(command);
@@ -149,6 +149,8 @@ public class ProbeAgentServer extends LifeCycle {
                         if (Thread.interrupted()) {
                             break;
                         }
+                        ex.printStackTrace();
+                        //TODO: remove printStackTrace
                         LOG.error("Probe command execute exception", ex);
                     }
                 }

@@ -6,6 +6,8 @@ import org.openjava.probe.shared.message.Message;
 public interface Session extends OutputStream<Message> {
     long id();
 
+    boolean requireIdle() throws InterruptedException;
+
     boolean compareAndSet(SessionState expectedState, SessionState newState);
 
     SessionState setState(SessionState state);

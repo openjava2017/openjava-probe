@@ -34,12 +34,11 @@ public class Message {
             }
         }
         byteBuffer.clear();
-
         return new Message(header, data);
     }
 
     public byte[] toBytes() {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.SIZE + payload.length);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(Integer.BYTES + payload.length);
         byteBuffer.putInt(header);
         byteBuffer.put(payload);
         byteBuffer.flip();

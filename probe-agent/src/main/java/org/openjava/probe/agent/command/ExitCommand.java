@@ -3,7 +3,7 @@ package org.openjava.probe.agent.command;
 import org.openjava.probe.agent.session.Session;
 import org.openjava.probe.agent.session.SessionState;
 
-public class ExitCommand extends ProbeCommand<ExitCommand.ExitParam> {
+public class ExitCommand extends ProbeCommand<ProbeCommand.NoneParam> {
     public ExitCommand(String[] params) throws Exception {
         super(params);
     }
@@ -17,17 +17,7 @@ public class ExitCommand extends ProbeCommand<ExitCommand.ExitParam> {
     }
 
     @Override
-    public Class<ExitParam> paramClass() {
-        return ExitParam.class;
-    }
-
-    static class ExitParam extends ProbeCommand.ProbeParam {
-        public ExitParam(String[] params) {
-            super(params);
-        }
-
-        @Override
-        public void parseParams(String[] params) {
-        }
+    public Class<NoneParam> paramClass() {
+        return NoneParam.class;
     }
 }

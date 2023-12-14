@@ -31,12 +31,10 @@ public class ProbeMethodVisitor extends AdviceAdapter implements Opcodes {
     private int probeId = 0;
     private int paramsLocal = 0;
     private boolean needProbe = false;
-    private final Class clazz;
     private final ProbeCallback callback;
 
-    public ProbeMethodVisitor(Class clazz, int api, MethodVisitor mv, int access, String name, String descriptor, ProbeCallback callback) {
+    public ProbeMethodVisitor(int api, MethodVisitor mv, int access, String name, String descriptor, ProbeCallback callback) {
         super(api, mv, access, name, descriptor);
-        this.clazz = clazz;
         this.callback = callback;
     }
 
@@ -66,7 +64,7 @@ public class ProbeMethodVisitor extends AdviceAdapter implements Opcodes {
         super.visitEnd();
         // if no method body like abstract method, probeId = 0 then
         if (probeId > 0 && callback != null) {
-            callback.onProbe(probeId, clazz, getName(), methodDesc);
+            callback.onMethodProbe(probeId, getName(), methodDesc);
         }
 
         probeId = 0;

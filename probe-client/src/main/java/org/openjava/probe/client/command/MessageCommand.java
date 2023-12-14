@@ -10,7 +10,7 @@ public class MessageCommand extends UserCommand<String> {
 
     @Override
     public void execute(Context context) {
-
+        System.out.println(param);
     }
 
     @Override

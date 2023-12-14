@@ -78,6 +78,8 @@ public abstract class AbstractSocketClient extends LifeCycle {
         scheduler.shutdown();
     }
 
+    protected abstract void onSessionClosed(INioSession session);
+
     private void checkState() {
         if (!isRunning()) {
             throw new IllegalStateException("Invalid processor state, state:" + getState());
@@ -144,7 +146,7 @@ public abstract class AbstractSocketClient extends LifeCycle {
 
         @Override
         public void onSessionClosed(INioSession session) {
-            // Ignore closed event
+            AbstractSocketClient.this.onSessionClosed(session);
         }
 
         @Override

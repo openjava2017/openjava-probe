@@ -10,9 +10,9 @@ import java.util.jar.JarFile;
 
 public class AgentBootstrap {
     private static ClassLoader agentClassLoader;
-    private static final String PROBE_AGENT_JAR = "probe-agent.jar";
-    private static final String PROBE_SHARED_JAR = "probe-shared.jar";
-    private static final String PROBE_CORE_JAR = "probe-core.jar";
+    private static final String PROBE_AGENT_JAR = "probe-agent-1.0.0.jar";
+    private static final String PROBE_SHARED_JAR = "probe-shared-1.0.0.jar";
+    private static final String PROBE_CORE_JAR = "probe-core-1.0.0.jar";
     private static final String PROBE_API_CLASS = "org.openjava.probe.core.api.ProbeMethodAPI";
     private static final String PROBE_SERVER_CLASS = "org.openjava.probe.agent.server.ProbeAgentServer";
     private static final String PROBE_SERVER_GET_INSTANCE = "getInstance";
@@ -34,6 +34,7 @@ public class AgentBootstrap {
         } catch (Exception ex) {
             System.err.println("Probe agent API init failed");
             ex.printStackTrace(System.err);
+            throw new RuntimeException("Probe agent API init failed", ex);
         }
 
         try {
@@ -41,6 +42,7 @@ public class AgentBootstrap {
         } catch (Exception ex) {
             System.err.println("Start probe agent server failed");
             ex.printStackTrace(System.err);
+            throw new RuntimeException("Start probe agent server failed", ex);
         }
     }
 
@@ -62,7 +64,7 @@ public class AgentBootstrap {
             if (coreJarFile.exists()) {
                 instrumentation.appendToBootstrapClassLoaderSearch(new JarFile(coreJarFile));
             } else {
-                throw new IllegalAccessException(PROBE_CORE_JAR + " not found");
+                throw new IllegalAccessException(coreJarFile.getAbsolutePath() + " not found");
             }
         }
     }
@@ -86,8 +88,8 @@ public class AgentBootstrap {
             CodeSource codeSource = AgentBootstrap.class.getProtectionDomain().getCodeSource();
             File bootJarFile = new File(codeSource.getLocation().toURI());
 
-            File coreJarFile = new File(bootJarFile.getParentFile(), PROBE_AGENT_JAR);
-            if (!coreJarFile.exists()) {
+            File agentJarFile = new File(bootJarFile.getParentFile(), PROBE_AGENT_JAR);
+            if (!agentJarFile.exists()) {
                 throw new IllegalAccessException(PROBE_AGENT_JAR + " not found");
             }
 
@@ -96,7 +98,7 @@ public class AgentBootstrap {
                 throw new IllegalAccessException(PROBE_SHARED_JAR + " not found");
             }
 
-            agentClassLoader = new AgentClassloader(new URL[]{coreJarFile.toURI().toURL(), sharedJarFile.toURI().toURL()});
+            agentClassLoader = new AgentClassloader(new URL[]{agentJarFile.toURI().toURL(), sharedJarFile.toURI().toURL()});
         }
         return agentClassLoader;
     }

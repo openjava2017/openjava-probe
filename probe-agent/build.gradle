@@ -11,7 +11,8 @@ jar {
     manifestContentCharset 'utf-8'
     metadataCharset 'utf-8'
     manifest {
-        attributes 'Class-Path': configurations.compileClasspath.files.collect {"$it.name"}.join(' ')
+//        attributes 'Class-Path': configurations.compileClasspath.files.collect {"$it.name"}.join(' ')
+        attributes 'Class-Path': 'asm-9.6.jar asm-tree-9.6.jar asm-commons-9.6.jar'
         attributes "Specification-Title" : project.name
         attributes "Specification-Version" : project.version
         attributes "Implementation-Title" : project.name

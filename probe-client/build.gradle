@@ -8,11 +8,13 @@ jar {
     manifestContentCharset 'utf-8'
     metadataCharset 'utf-8'
     manifest {
-        attributes "Main-Class" : "org.openjava.probe.agent.boot.AgentBootstrap"
+        attributes "Main-Class" : "org.openjava.probe.client.boot.ClientBootstrap"
         attributes "Specification-Title" : project.name
         attributes "Specification-Version" : project.version
         attributes "Implementation-Title" : project.name
         attributes "Implementation-Version" : project.version
+//        attributes 'Class-Path': configurations.compileClasspath.files.collect {"$it.name"}.join(' ')
+        attributes 'Class-Path': 'probe-shared-1.0.0.jar'
     }
     from { // 打包test类
         sourceSets.test.output

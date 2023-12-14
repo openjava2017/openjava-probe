@@ -11,7 +11,6 @@ import org.openjava.probe.shared.log.LoggerFactory;
 import org.openjava.probe.shared.util.Matcher;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 public class ProbeClassFileTransformer implements ClassFileTransformer {
@@ -27,8 +26,7 @@ public class ProbeClassFileTransformer implements ClassFileTransformer {
         this.callback = callback;
     }
 
-    public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain,
-                            byte[] classBytes) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain, byte[] classBytes) {
         if (clazz != classRedefined) {
             return null;
         }

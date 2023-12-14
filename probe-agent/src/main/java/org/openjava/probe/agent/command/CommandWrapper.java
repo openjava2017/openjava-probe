@@ -1,7 +1,8 @@
 package org.openjava.probe.agent.command;
 
-import org.openjava.probe.shared.exception.ProbeServiceException;
 import org.openjava.probe.shared.message.Message;
+import org.openjava.probe.shared.message.MessageHeader;
+import org.openjava.probe.shared.message.PayloadHelper;
 
 public class CommandWrapper {
     private Context context;
@@ -21,10 +22,10 @@ public class CommandWrapper {
         Command probeCommand = null;
         try {
             probeCommand = ProbeCommandFactory.getInstance().getCommand(command);
-        } catch (ProbeServiceException aex) {
-            context.session().write(Message.ofMessage(aex.getMessage()));
+        } catch (IllegalArgumentException ex) {
+            context.session().write(Message.of(MessageHeader.COMMAND_EXIT, ex.getMessage(), PayloadHelper.STRING_ENCODER));
         } catch (Exception ex) {
-            context.session().write(Message.ofMessage("unknown command parse exception"));
+            context.session().write(Message.of(MessageHeader.COMMAND_EXIT, "unknown command parse error", PayloadHelper.STRING_ENCODER));
         }
 
         if (probeCommand != null) {

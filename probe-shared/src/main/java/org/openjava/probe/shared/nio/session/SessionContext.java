@@ -20,8 +20,15 @@ public class SessionContext {
     }
 
     public void fireSessionClosed() {
-        if (session.state.compareAndSet(SessionState.CLOSING, SessionState.CLOSED) && listener != null) {
-            listener.onSessionClosed(session);
+        switch(session.state.getAndSet(SessionState.CLOSED)) {
+            case CONNECTED:
+            case CLOSING:
+                if(listener != null) {
+                    listener.onSessionClosed(session);
+                }
+                break;
+            default:
+                break;
         }
     }
 

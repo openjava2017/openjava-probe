@@ -19,11 +19,19 @@ public class ProbeClassVisitor extends ClassVisitor {
         this.callback = callback;
     }
 
+    public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
+        if (callback != null) {
+            callback.onClassProbe(clazz);
+        }
+
+        super.visit(version, access, name, signature, superName, interfaces);
+    }
+
     public MethodVisitor visitMethod(final int access, final String name, final String descriptor, final String signature, final String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
         if (mv != null && methodMatcher.match(name) && !Modifier.isAbstract(access) && !Modifier.isNative(access)) {
-            mv = new ProbeMethodVisitor(clazz, api, mv, access, name, descriptor, callback);
+            mv = new ProbeMethodVisitor(api, mv, access, name, descriptor, callback);
         }
 
         return mv;
