@@ -1,10 +1,10 @@
 package org.openjava.probe.client;
 
+import org.openjava.probe.client.env.UserEnvironment;
+import org.openjava.probe.client.gui.ProbeDashboard;
+
 public class Main {
     public static void main(String[] args) {
-        System.out.println(System.getenv());
-        System.out.println(System.getProperties());
-
-        System.out.println(System.console());
+        new ProbeDashboard(new UserEnvironment(String.join(",", args)));
     }
 }

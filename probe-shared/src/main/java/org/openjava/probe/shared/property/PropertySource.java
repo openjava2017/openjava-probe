@@ -32,7 +32,7 @@ public abstract class PropertySource<T> {
 
     @Override
     public boolean equals(Object other) {
-        return (this == other || (other instanceof PropertySource && ObjectUtils.equals(this.name, ((PropertySource<?>) other).name)));
+        return this == other || (other instanceof PropertySource && ObjectUtils.equals(this.name, ((PropertySource<?>) other).name));
     }
 
     @Override

@@ -3,13 +3,14 @@ package org.openjava.probe.client.boot;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import org.openjava.probe.client.agent.ProbeAgentClient;
+import org.openjava.probe.client.console.JavaProcess;
 import org.openjava.probe.client.console.ShellConsole;
 import org.openjava.probe.client.env.Environment;
 import org.openjava.probe.client.env.UserEnvironment;
 
 import java.io.File;
 import java.security.CodeSource;
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -22,7 +23,7 @@ public class ClientBootstrap {
     public static void main(String[] args) {
         Environment environment = new UserEnvironment(String.join(",", args));
         ShellConsole console = new ShellConsole(environment);
-        Map<String, String> processes = console.listJavaProcesses();
+        List<JavaProcess> processes = console.listJavaProcesses();
 
         if (processes.isEmpty()) {
             System.err.println("Cannot find java processes");
@@ -30,13 +31,13 @@ public class ClientBootstrap {
         }
 
         System.out.println(String.format("%s          %s", "pid", "main-class"));
-        for (Map.Entry<String, String> entry : processes.entrySet()) {
-            System.out.println(String.format("%s          %s", entry.getKey(), entry.getValue()));
+        for (JavaProcess process : processes) {
+            System.out.println(String.format("%s          %s", process.processId(), process.mainClass()));
         }
 
         String pid;
         String tips = "Please choose one process above(or exit): ";
-        for (pid = console.readLine(tips); processes.get(pid) == null; pid = console.readLine(tips)) {
+        for (pid = console.readLine(tips); !processes.contains(JavaProcess.of(pid, null)); pid = console.readLine(tips)) {
             if ("exit".equals(pid)) {
                 System.exit(0);
             }
