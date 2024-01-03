@@ -16,18 +16,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractSocketClient extends LifeCycle {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSocketClient.class);
-    private static final int CONNECT_TIMEOUT_MILLIS = 10 * 1000;
-
-    private final String host;
-    private final int port;
-    private final long connTimeOutInMillis;
 
     // for client side, only one processor is enough
     private final IProcessor<INioSession>[] processors = new IProcessor[1];
@@ -35,27 +29,14 @@ public abstract class AbstractSocketClient extends LifeCycle {
     private final ExecutorService executor;
     private final Scheduler scheduler;
 
-    public AbstractSocketClient(String host, int port) {
-        // for client side, only one processor thread is enough
-        this(host, port, CONNECT_TIMEOUT_MILLIS, Executors.newSingleThreadExecutor());
-    }
-
-    public AbstractSocketClient(String host, int port, int connTimeOutInMillis, ExecutorService executor) {
-        AssertUtils.notEmpty(host, "host cannot be null");
-        AssertUtils.isTrue(port > 1024, "Invalid port value");
-        AssertUtils.isTrue(connTimeOutInMillis > 0, "invalid connTimeOutInMillis value");
-        AssertUtils.notNull(executor, "executor cannot be null");
-
-        this.host = host;
-        this.port = port;
-        this.connTimeOutInMillis = connTimeOutInMillis;
+    public AbstractSocketClient(ExecutorService executor) {
         this.executor = executor;
         this.scheduler = new ScheduledExecutor("connect-timeout-scanner", true);
     }
 
-    public INioSession getSession(ISessionDataListener dataListener) throws IOException {
+    protected INioSession getSession(String host, int port, int connTimeOutInMillis, ISessionDataListener dataListener) throws IOException {
         checkState();
-        NioConnectFactory sessionFactory = new NioConnectFactory();
+        NioConnectFactory sessionFactory = new NioConnectFactory(host, port, connTimeOutInMillis);
         INioSession session = sessionFactory.createSession(dataListener);
         if (session == null) {
             throw new OpenSessionException("Failed to create nio session");
@@ -87,11 +68,25 @@ public abstract class AbstractSocketClient extends LifeCycle {
     }
 
     private class NioConnectFactory implements ISessionEventListener {
+        private final String host;
+        private final int port;
+        private final int connTimeOutInMillis;
         private volatile INioSession session;
         private final ReentrantLock lock = new ReentrantLock();
 
         /** Condition for waiting takes */
         private final Condition hasSession = lock.newCondition();
+
+        public NioConnectFactory(String host, int port, int connTimeOutInMillis) {
+            AssertUtils.notEmpty(host, "host cannot be null");
+            AssertUtils.isTrue(port > 1024, "Invalid port value");
+            AssertUtils.isTrue(connTimeOutInMillis > 0, "invalid connTimeOutInMillis value");
+            AssertUtils.notNull(executor, "executor cannot be null");
+
+            this.host = host;
+            this.port = port;
+            this.connTimeOutInMillis = connTimeOutInMillis;
+        }
 
         @Override
         public void onSessionCreated(INioSession session) {

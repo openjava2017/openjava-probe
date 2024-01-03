@@ -1,5 +1,8 @@
 package org.openjava.probe.agent.env;
 
+import org.openjava.probe.agent.context.Environment;
+import org.openjava.probe.agent.context.ProbeEnvironment;
+
 public class TestProbeEnvironment {
     public static void main(String[] args) {
         Environment environment = new ProbeEnvironment("key1=value1");

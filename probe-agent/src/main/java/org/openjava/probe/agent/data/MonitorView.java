@@ -13,7 +13,7 @@ public class MonitorView extends AbstractView<MonitorModel> {
         MonitorModel data = data();
         //TODO: render data view
         synchronized (data) {
-            output.write(Message.ofMessage("monitor data" + data.totalCostInMillis()));
+            output.write(Message.info("monitor data" + data.totalCostInMillis()));
         }
     }
 }

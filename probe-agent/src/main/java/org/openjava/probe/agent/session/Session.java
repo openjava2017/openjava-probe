@@ -11,9 +11,13 @@ public interface Session extends OutputStream<Message> {
 
     void clearMethodAdvices();
 
+    SessionState getState();
+
     boolean compareAndSet(SessionState expectedState, SessionState newState);
 
     SessionState setState(SessionState state);
+
+    void synchronize();
 
     void destroy();
 }

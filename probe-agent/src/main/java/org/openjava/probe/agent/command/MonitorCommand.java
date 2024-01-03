@@ -1,13 +1,12 @@
 package org.openjava.probe.agent.command;
 
 import org.openjava.probe.agent.asm.MethodProbeCallback;
+import org.openjava.probe.agent.context.Context;
 import org.openjava.probe.agent.server.ProbeAgentServer;
 import org.openjava.probe.agent.session.Session;
 import org.openjava.probe.agent.session.SessionState;
 import org.openjava.probe.agent.transformer.ClassTransformerManager;
 import org.openjava.probe.shared.message.Message;
-import org.openjava.probe.shared.message.MessageHeader;
-import org.openjava.probe.shared.message.PayloadHelper;
 
 public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
 
@@ -23,14 +22,15 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
             MethodProbeCallback callback = new MethodProbeCallback(session);
             transformerManager.enhance(context.instrumentation(), param.className, param.methodName, callback);
             if (callback.matchedMethods() > 0) {
-                session.setState(SessionState.IDLE);
-                session.write(Message.ofMessage(String.format("%s classes matched, %s methods enhanced",
+                session.synchronize();
+                session.write(Message.info(String.format("%s classes matched, %s methods enhanced",
                     callback.matchedClasses(), callback.matchedMethods())));
             } else {
-                session.write(Message.of(MessageHeader.COMMAND_EXIT, "No methods enhanced", PayloadHelper.STRING_ENCODER));
+                session.setState(SessionState.IDLE);
+                session.write(Message.error("No methods enhanced"));
             }
         } else {
-            session.write(Message.ofMessage("Illegal user session state"));
+            session.write(Message.error("Illegal user session state: " + session.getState()));
         }
     }
 

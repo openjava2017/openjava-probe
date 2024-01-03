@@ -7,11 +7,10 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class StatusBar extends JPanel {
-    private static final StatusBar instance = new StatusBar();
 
     private final JLabel statusLabel;
 
-    private StatusBar() {
+    public StatusBar() {
         setLayout(new FlowLayout(FlowLayout.LEFT));
         setBorder(new CompoundBorder(new LineBorder(Color.DARK_GRAY), new EmptyBorder(4, 4, 4, 4)));
         setBackground(Color.LIGHT_GRAY);
@@ -19,11 +18,7 @@ public class StatusBar extends JPanel {
         add(statusLabel);
     }
 
-    public static StatusBar getInstance() {
-        return instance;
-    }
-
     public void setStatus(String text) {
-        SwingUtilities.invokeLater(() -> statusLabel.setText(text));
+        statusLabel.setText(text);
     }
 }

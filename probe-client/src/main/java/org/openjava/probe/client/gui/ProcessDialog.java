@@ -2,9 +2,12 @@ package org.openjava.probe.client.gui;
 
 import org.openjava.probe.client.console.JavaProcess;
 import org.openjava.probe.client.console.ShellConsole;
+import org.openjava.probe.client.gui.event.GuiEventMulticaster;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 
 public class ProcessDialog extends JDialog {
@@ -25,11 +28,8 @@ public class ProcessDialog extends JDialog {
 
     public void showDialog() {
         listModel.clear();
-        SwingUtilities.invokeLater(() -> {
-            List<JavaProcess> processes = console.listJavaProcesses();
-            listModel.addAll(processes);
-
-        });
+        List<JavaProcess> processes = console.listJavaProcesses();
+        listModel.addAll(processes);
         setVisible(true);
     }
 
@@ -39,7 +39,20 @@ public class ProcessDialog extends JDialog {
         JPanel processPanel = new JPanel(new GridLayout(1, 1));
         processPanel.setPreferredSize(new Dimension(300, 140));
         JList processList = new JList(listModel);
+        processList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent event) {
+                if (event.getClickCount() == 2) {
+                    Object o = processList.getSelectedValue();
+                    if (o != null && o instanceof JavaProcess) {
+                        setVisible(false);
+                        GuiEventMulticaster.getInstance().attachJavaProcess((JavaProcess) o);
+                    }
+                }
+            }
+        });
         processPanel.add(processList);
+
         add(processPanel, BorderLayout.CENTER);
         JPanel selectPanel = new JPanel(new FlowLayout());
         JButton connectBtn = new JButton("Connect");
@@ -47,7 +60,7 @@ public class ProcessDialog extends JDialog {
             Object o = processList.getSelectedValue();
             if (o != null && o instanceof JavaProcess) {
                 setVisible(false);
-                ((ProbeDashboard)getParent()).attach((JavaProcess) o);
+                GuiEventMulticaster.getInstance().attachJavaProcess((JavaProcess) o);
             }
         });
         selectPanel.add(connectBtn);

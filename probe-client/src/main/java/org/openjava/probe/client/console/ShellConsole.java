@@ -3,7 +3,7 @@ package org.openjava.probe.client.console;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import org.openjava.probe.client.boot.ClientBootstrap;
-import org.openjava.probe.client.env.Environment;
+import org.openjava.probe.client.context.Environment;
 import org.openjava.probe.shared.ErrorCode;
 import org.openjava.probe.shared.exception.ProbeServiceException;
 
@@ -40,7 +40,7 @@ public class ShellConsole {
         if (!jps.exists()) {
             jps = new File(javaHome, "bin/jps.exe");
             if (!jps.exists()) {
-                System.err.println("Cannot find jps command");
+                System.err.println("Cannot find jps handler");
                 return Collections.emptyList();
             }
         }
@@ -65,7 +65,7 @@ public class ShellConsole {
         try {
             process = Runtime.getRuntime().exec(command);
         } catch (IOException ex) {
-            System.err.println("Couldn't run command :" + Arrays.toString(command));
+            System.err.println("Couldn't run handler :" + Arrays.toString(command));
             ex.printStackTrace(System.err);
             return Collections.emptyList();
         }

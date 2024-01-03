@@ -1,5 +1,7 @@
 package org.openjava.probe.agent.command;
 
+import org.openjava.probe.agent.context.Context;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 

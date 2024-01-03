@@ -1,5 +1,6 @@
 package org.openjava.probe.agent.command;
 
+import org.openjava.probe.agent.context.Context;
 import org.openjava.probe.agent.server.ProbeAgentServer;
 import org.openjava.probe.shared.message.Message;
 
@@ -13,7 +14,7 @@ public class QuitCommand extends ProbeCommand<QuitCommand.QuitParam> {
         try {
             ProbeAgentServer.getInstance().stop();
         } catch (Exception ex) {
-            context.session().write(Message.ofMessage("Quit command execute exception"));
+            context.session().write(Message.error("Quit handler execute exception"));
         }
     }
 

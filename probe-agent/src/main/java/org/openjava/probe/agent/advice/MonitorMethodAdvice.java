@@ -26,7 +26,7 @@ public class MonitorMethodAdvice extends ProbeMethodAdvice {
         TIME_THREAD_LOCAL.remove();
         if (start != null) {
             long costTime = System.currentTimeMillis() - start;
-            Message message = Message.ofMessage(String.format("%s.%s[success] consumes %s milliseconds",
+            Message message = Message.info(String.format("%s.%s[success] consumes %s milliseconds",
                 pointcut.clazz().getSimpleName(), pointcut.methodName(), costTime));
             session().write(message);
             data.push(true, costTime);
@@ -39,7 +39,7 @@ public class MonitorMethodAdvice extends ProbeMethodAdvice {
         TIME_THREAD_LOCAL.remove();
         if (start != null) {
             long costTime = System.currentTimeMillis() - start;
-            Message message = Message.ofMessage(String.format("%s.%s[failed] consumes %s milliseconds",
+            Message message = Message.info(String.format("%s.%s[failed] consumes %s milliseconds",
                 pointcut.clazz().getSimpleName(), pointcut.methodName(), costTime));
             session().write(message);
             data.push(false, costTime);

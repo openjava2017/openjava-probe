@@ -5,13 +5,11 @@ import javax.swing.text.*;
 import java.awt.*;
 
 public class ConsolePanel extends JTextPane {
-    private static final ConsolePanel instance = new ConsolePanel();
-
     private final Document document;
     private final SimpleAttributeSet infoStyle;
     private final SimpleAttributeSet errorStyle;
 
-    private ConsolePanel() {
+    public ConsolePanel() {
         document = new DefaultStyledDocument(new StyleContext());
         setDocument(document);
 
@@ -19,7 +17,7 @@ public class ConsolePanel extends JTextPane {
         setEditable(false);
         setBackground(Color.BLACK);
         setForeground(Color.WHITE);
-        setMargin(new Insets(5, 5, 5, 5));
+        setMargin(new Insets(10, 10, 10, 10));
 
         infoStyle = new SimpleAttributeSet();
         StyleConstants.setForeground(infoStyle, Color.WHITE);
@@ -27,13 +25,9 @@ public class ConsolePanel extends JTextPane {
         StyleConstants.setFontSize(infoStyle, 14);
 
         errorStyle = new SimpleAttributeSet();
-        StyleConstants.setForeground(infoStyle, Color.RED);
-        StyleConstants.setBackground(infoStyle, Color.BLACK);
-        StyleConstants.setFontSize(infoStyle, 14);
-    }
-
-    public static ConsolePanel getInstance() {
-        return instance;
+        StyleConstants.setForeground(errorStyle, Color.RED);
+        StyleConstants.setBackground(errorStyle, Color.BLACK);
+        StyleConstants.setFontSize(errorStyle, 14);
     }
 
     public void info(String line) {
@@ -45,22 +39,18 @@ public class ConsolePanel extends JTextPane {
     }
 
     public void println(String line, SimpleAttributeSet style) {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                document.insertString(document.getLength(), line + "\n", style);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        try {
+            document.insertString(document.getLength(), line + "\n", style);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void clear() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                document.remove(0, document.getLength());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        try {
+            document.remove(0, document.getLength());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }

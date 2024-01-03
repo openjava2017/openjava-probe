@@ -1,5 +1,9 @@
 package org.openjava.probe.shared.message;
 
+import org.openjava.probe.shared.message.codec.InfoPayloadCodec;
+import org.openjava.probe.shared.message.codec.PayloadDecoder;
+import org.openjava.probe.shared.message.codec.PayloadEncoder;
+
 import java.nio.ByteBuffer;
 
 public class Message {
@@ -15,12 +19,20 @@ public class Message {
         return new Message(header.getCode(), payload);
     }
 
-    public static Message ofMessage(String payload) {
-        return of(MessageHeader.USER_MESSAGE, payload, PayloadHelper.STRING_ENCODER);
+    public static Message info(String payload) {
+        return of(MessageHeader.INFO_MESSAGE, new InfoMessage(InfoMessage.INFO_LEVEL, payload), InfoPayloadCodec.getEncoder());
+    }
+
+    public static Message error(String payload) {
+        return of(MessageHeader.INFO_MESSAGE, new InfoMessage(InfoMessage.ERROR_LEVEL, payload), InfoPayloadCodec.getEncoder());
     }
 
     public static Message of(MessageHeader header, String payload, PayloadEncoder<String> encoder) {
-        return new Message(header.getCode(), encoder.encode(payload));
+        return of(header, encoder.encode(payload));
+    }
+
+    public static <T> Message of(MessageHeader header, T payload, PayloadEncoder<T> encoder) {
+        return of(header, encoder.encode(payload));
     }
 
     public static Message from(byte[] bytes) {

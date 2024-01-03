@@ -1,6 +1,8 @@
 package org.openjava.probe.client.session;
 
 import org.openjava.probe.shared.message.Message;
+import org.openjava.probe.shared.message.MessageHeader;
+import org.openjava.probe.shared.message.codec.StringPayloadCodec;
 import org.openjava.probe.shared.nio.session.INioSession;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,22 +21,17 @@ public class UserSession extends SessionOutputAdapter implements Session {
     }
 
     @Override
-    public void write(Message message) {
-        if (compareAndSet(SessionState.IDLE, SessionState.BUSY)) {
-            super.write(message);
-        } else {
-            System.err.println("Cannot send the user command: user session is busy or closed");
-        }
+    public void send(String command) {
+        write(Message.of(MessageHeader.USER_COMMAND, command, StringPayloadCodec.getEncoder()));
     }
 
     @Override
-    public boolean requireIdle() throws InterruptedException {
-        if (this.state.get() == SessionState.BUSY) {
-            synchronized (this) {
-                this.wait();
-            }
+    public void write(Message message) {
+        if (state.get() != SessionState.CLOSED) {
+            super.write(message);
+        } else {
+            throw new IllegalStateException("User session already closed");
         }
-        return this.state.get() == SessionState.IDLE;
     }
 
     @Override

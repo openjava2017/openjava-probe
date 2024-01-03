@@ -3,13 +3,20 @@ package org.openjava.probe.client.gui;
 import org.openjava.probe.client.agent.ProbeAgentClient;
 import org.openjava.probe.client.console.JavaProcess;
 import org.openjava.probe.client.console.ShellConsole;
-import org.openjava.probe.client.env.Environment;
+import org.openjava.probe.client.context.Environment;
+import org.openjava.probe.client.gui.event.AttachEvent;
+import org.openjava.probe.client.gui.event.GuiEventMulticaster;
+import org.openjava.probe.client.session.Session;
+import org.openjava.probe.client.session.SessionState;
 import org.openjava.probe.shared.exception.ProbeServiceException;
+import org.openjava.probe.shared.message.InfoMessage;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,13 +24,27 @@ import java.util.concurrent.TimeUnit;
 
 public class ProbeDashboard extends JFrame {
     private final Environment environment;
-    private final ShellConsole console;
+    private final ShellConsole shellConsole;
+    private final JPopupMenu popupMenu;
+    private final CommandPanel commandPanel;
+    private final ConsolePanel consolePanel;
+    private final StatusBar statusBar;
     private final ProcessDialog processDialog;
+    private final ExecutorService executorService;
+    private final ProbeAgentClient client;
+    private volatile Session session;
 
     public ProbeDashboard(Environment environment) {
         this.environment = environment;
-        this.console = new ShellConsole(environment);
-        this.processDialog = new ProcessDialog(console, this);
+        this.shellConsole = new ShellConsole(environment);
+        this.popupMenu = new JPopupMenu();
+        this.commandPanel = new CommandPanel();
+        this.consolePanel = new ConsolePanel();
+        this.statusBar = new StatusBar();
+        this.processDialog = new ProcessDialog(shellConsole, this);
+        this.executorService = new ThreadPoolExecutor(2, 10, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
+        this.client = new ProbeAgentClient(environment, executorService);
+
         setTitle("Dashboard");
         setSize(600, 500);
         setLocationRelativeTo(null);
@@ -31,13 +52,18 @@ public class ProbeDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initMenuBar();
         initLayout();
+        installEventListener();
+    }
+
+    public void showDashboard() throws Exception {
+        this.client.start();
         setVisible(true);
     }
 
     public void attach(JavaProcess process) {
-        StatusBar.getInstance().setStatus("");
+        statusBar.setStatus("");
         try {
-            console.attachAgent(process.processId());
+            shellConsole.attachAgent(process.processId());
         } catch (ProbeServiceException sex) {
             JOptionPane.showMessageDialog(getParent(), sex.getMessage(), "Agent Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -46,38 +72,130 @@ public class ProbeDashboard extends JFrame {
             return;
         }
 
-        ExecutorService executorService = new ThreadPoolExecutor(2, 10, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
-        ProbeAgentClient client = new ProbeAgentClient(environment, executorService);
         try {
-            client.start();
+            String host = environment.getRequiredProperty("probe.server.host");
+            int port = environment.getRequiredProperty("probe.server.port", Integer.class);
+            int timeout = environment.getProperty("probe.client.connTimeOut", Integer.class, 4000);
+            this.session = client.connect(host, port, timeout);
+            GuiEventMulticaster.getInstance().fireAttachEvent(new AttachEvent(process, true));
         } catch (Exception ex) {
             ex.printStackTrace(System.err);
+            GuiEventMulticaster.getInstance().fireAttachEvent(new AttachEvent(process, false));
             JOptionPane.showMessageDialog(getParent(), "Probe agent client start failed", "Agent Error", JOptionPane.ERROR_MESSAGE);
         }
-        StatusBar.getInstance().setStatus(process.mainClass() + " connected");
     }
 
     private void initMenuBar() {
-        JMenuBar menuBar = new JMenuBar();
-        JMenu connectMenu = new JMenu("Connect");
-        connectMenu.addMouseListener(new MouseAdapter() {
-            @Override
+        JMenuItem attachMenuItem = new JMenuItem("Attach...");
+        JMenuItem detachMenuItem = new JMenuItem("Detach");
+        detachMenuItem.setEnabled(false);
+        JMenuItem cancelMenuItem = new JMenuItem("Cancel");
+        cancelMenuItem.setEnabled(false);
+
+        popupMenu.add(attachMenuItem);
+        popupMenu.add(detachMenuItem);
+        popupMenu.addSeparator();
+        popupMenu.add(cancelMenuItem);
+
+        consolePanel.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent event) {
-                processDialog.showDialog();
+                if(event.isPopupTrigger()) {
+                    popupMenu.show(event.getComponent(), event.getX(), event.getY());
+                }
             }
         });
-        JMenu disconnectMenu = new JMenu("Disconnect");
-        JMenu quitMenu = new JMenu("Quit");
-        menuBar.add(connectMenu);
-        menuBar.add(disconnectMenu);
-        menuBar.add(quitMenu);
-        setJMenuBar(menuBar);
+
+        attachMenuItem.addActionListener(event -> processDialog.showDialog());
+        detachMenuItem.addActionListener(event -> session.send("quit"));
+        cancelMenuItem.addActionListener(event -> session.send("cancel"));
     }
 
     private void initLayout() {
         setLayout(new BorderLayout());
-        add(CommandPanel.getInstance(), BorderLayout.NORTH);
-        add(new JScrollPane(ConsolePanel.getInstance()), BorderLayout.CENTER);
-        add(StatusBar.getInstance(), BorderLayout.SOUTH);
+        add(commandPanel, BorderLayout.NORTH);
+        add(new JScrollPane(consolePanel), BorderLayout.CENTER);
+        add(statusBar, BorderLayout.SOUTH);
+    }
+
+    private void installEventListener() {
+        GuiEventMulticaster.getInstance().installProcessConsumer(process -> {
+            attach(process);
+        });
+
+        GuiEventMulticaster.getInstance().installCommandConsumer(command -> {
+            if (session != null) {
+                session.send(command);
+                consolePanel.info(command);
+                commandPanel.clear();
+            } else {
+                JOptionPane.showMessageDialog(getParent(), "User session not started", "Session Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        GuiEventMulticaster.getInstance().installAttachEventListener(event -> {
+            JavaProcess process = (JavaProcess) event.getSource();
+            if (event.success()) {
+                statusBar.setStatus(process.mainClass() + " connected");
+                popupMenu.getComponent(0).setEnabled(false);
+                popupMenu.getComponent(1).setEnabled(true);
+                popupMenu.getComponent(3).setEnabled(true);
+                commandPanel.setEnabled(true);
+            } else {
+                statusBar.setStatus(process.mainClass() + " connect failed");
+                popupMenu.getComponent(0).setEnabled(true);
+                popupMenu.getComponent(1).setEnabled(false);
+                popupMenu.getComponent(3).setEnabled(false);
+                commandPanel.setEnabled(false);
+            }
+        });
+
+        GuiEventMulticaster.getInstance().installDetachEventListener(event -> {
+            session = null;
+            SwingUtilities.invokeLater(() -> {
+                popupMenu.getComponent(0).setEnabled(true);
+                popupMenu.getComponent(1).setEnabled(false);
+                popupMenu.getComponent(3).setEnabled(false);
+                commandPanel.setEnabled(false);
+                consolePanel.clear();
+            });
+        });
+
+        GuiEventMulticaster.getInstance().installDataEventListener(event -> {
+            InfoMessage message = event.message();
+            SwingUtilities.invokeLater(() -> {
+                switch (message.level()) {
+                    case InfoMessage.INFO_LEVEL:
+                        consolePanel.info(message.information());
+                        break;
+                    case InfoMessage.ERROR_LEVEL:
+                        consolePanel.error(message.information());
+                        break;
+                    default:
+                }
+            });
+        });
+
+        GuiEventMulticaster.getInstance().installSessionStateListener(event -> {
+            SwingUtilities.invokeLater(() -> {
+                if (event.state() == SessionState.IDLE) {
+                    commandPanel.setEnabled(true);
+                    popupMenu.getComponent(3).setEnabled(false);
+                } else if (event.state() == SessionState.BUSY) {
+                    commandPanel.setEnabled(false);
+                    popupMenu.getComponent(3).setEnabled(true);
+                }
+            });
+        });
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                try {
+                    ProbeDashboard.this.client.stop();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 }

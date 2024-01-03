@@ -3,6 +3,9 @@ package org.openjava.probe.agent.session;
 import org.openjava.probe.agent.advice.MethodAdviceManager;
 import org.openjava.probe.agent.advice.MethodPointcut;
 import org.openjava.probe.agent.advice.ProbeMethodAdvice;
+import org.openjava.probe.shared.message.Message;
+import org.openjava.probe.shared.message.MessageHeader;
+import org.openjava.probe.shared.message.codec.IntegerPayloadCodec;
 import org.openjava.probe.shared.nio.session.INioSession;
 
 import java.util.ArrayList;
@@ -44,6 +47,11 @@ public class UserSession extends SessionOutputAdapter implements Session {
     }
 
     @Override
+    public SessionState getState() {
+        return this.state.get();
+    }
+
+    @Override
     public boolean compareAndSet(SessionState expectedState, SessionState newState) {
         return this.state.compareAndSet(expectedState, newState);
     }
@@ -51,6 +59,12 @@ public class UserSession extends SessionOutputAdapter implements Session {
     @Override
     public SessionState setState(SessionState state) {
         return this.state.getAndSet(state);
+    }
+
+    @Override
+    public void synchronize() {
+        Message message = Message.of(MessageHeader.SESSION_STATE, this.state.get().code(), IntegerPayloadCodec.getEncoder());
+        write(message);
     }
 
     @Override
