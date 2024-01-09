@@ -1,17 +1,18 @@
 package org.openjava.probe.agent.command;
 
-import org.openjava.probe.agent.asm.MonitorMethodCallback;
+import org.openjava.probe.agent.asm.WatchMethodCallback;
 import org.openjava.probe.agent.context.Context;
-import org.openjava.probe.agent.data.MonitorAdviceParam;
+import org.openjava.probe.agent.data.WatchAdviceParam;
+import org.openjava.probe.agent.data.WatchMode;
 import org.openjava.probe.agent.server.ProbeAgentServer;
 import org.openjava.probe.agent.session.Session;
 import org.openjava.probe.agent.session.SessionState;
 import org.openjava.probe.agent.transformer.ClassTransformerManager;
 import org.openjava.probe.shared.message.Message;
 
-public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
+public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
 
-    public MonitorCommand(String[] params) throws Exception {
+    public WatchCommand(String[] params) throws Exception {
         super(params);
     }
 
@@ -20,8 +21,8 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
         Session session = context.session();
         if (session.compareAndSet(SessionState.IDLE, SessionState.BUSY)) {
             ClassTransformerManager transformerManager = ProbeAgentServer.getInstance().transformerManager();
-            MonitorMethodCallback callback = new MonitorMethodCallback(session, MonitorAdviceParam.of(param.maxTimes));
-            transformerManager.enhance(context.instrumentation(), param.className, param.methodName, callback);
+            WatchMethodCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param().maxTimes));
+            transformerManager.enhance(context.instrumentation(), param().className, param().methodName, callback);
             if (callback.matchedMethods() > 0) {
                 session.synchronize();
                 session.write(Message.info(String.format("%s classes matched, %s methods enhanced",
@@ -36,16 +37,17 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
     }
 
     @Override
-    public Class<MonitorParam> paramClass() {
-        return MonitorParam.class;
+    public Class<WatchParam> paramClass() {
+        return WatchParam.class;
     }
 
-    static class MonitorParam extends ProbeCommand.ProbeParam {
+    static class WatchParam extends ProbeParam {
         private String className;
         private String methodName;
+        private WatchMode watchMode;
         private Integer maxTimes;
 
-        public MonitorParam(String[] params) {
+        public WatchParam(String[] params) {
             super(params);
         }
 
@@ -64,7 +66,7 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
                     param = param.substring(2, param.length());
                     int index = param.indexOf('=');
                     if (index <= 0 || index >= param.length() - 1) {
-                        throw new IllegalArgumentException("Illegal monitor command params");
+                        throw new IllegalArgumentException("Illegal watch command params");
                     }
                     String key = param.substring(0, index);
                     String value = param.substring(index + 1, param.length());
@@ -72,9 +74,13 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
                         try {
                             maxTimes = Integer.parseInt(value);
                         } catch (Exception ex) {
-                            throw new IllegalArgumentException("Illegal monitor maxTime params");
+                            throw new IllegalArgumentException("Illegal watch maxTime params");
                         }
                     }
+                } else if (param.equalsIgnoreCase("-before")) {
+                    this.watchMode = WatchMode.BEFORE;
+                } else if (param.equalsIgnoreCase("-after")) {
+                    this.watchMode = WatchMode.AFTER;
                 } else {
                     throw new IllegalArgumentException("Illegal monitor command params");
                 }

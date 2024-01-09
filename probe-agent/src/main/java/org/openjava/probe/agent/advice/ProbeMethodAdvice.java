@@ -23,7 +23,8 @@ public abstract class ProbeMethodAdvice implements SessionAware {
 
     public abstract void onExitMethodOnException(Object[] params, Throwable ex);
 
-    public abstract void destroy();
+    public void destroy() {
+    }
 
     public int id() {
         return this.id;

@@ -46,7 +46,7 @@ public class ProbeDashboard extends JFrame {
         this.client = new ProbeAgentClient(environment, executorService);
 
         setTitle("Dashboard");
-        setSize(600, 500);
+        setSize(750, 600);
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

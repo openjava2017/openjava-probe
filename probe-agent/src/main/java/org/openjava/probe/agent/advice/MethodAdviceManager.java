@@ -42,7 +42,7 @@ public class MethodAdviceManager {
             return Collections.emptyList();
         }
         synchronized (adviceList) {
-            return Collections.unmodifiableList(adviceList);
+            return new ArrayList<>(adviceList);
         }
     }
 
