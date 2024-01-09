@@ -1,5 +1,6 @@
 package org.openjava.probe.agent.data;
 
+import org.openjava.probe.agent.json.JsonMapper;
 import org.openjava.probe.shared.OutputStream;
 import org.openjava.probe.shared.message.Message;
 
@@ -13,7 +14,7 @@ public class MonitorView extends AbstractView<MonitorModel> {
         MonitorModel data = data();
         //TODO: render data view
         synchronized (data) {
-            output.write(Message.info("monitor data" + data.totalCostInMillis()));
+            output.write(Message.info(JsonMapper.toJson(data)));
         }
     }
 }

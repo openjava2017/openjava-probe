@@ -29,8 +29,6 @@ public class UserSession extends SessionOutputAdapter implements Session {
     public void write(Message message) {
         if (state.get() != SessionState.CLOSED) {
             super.write(message);
-        } else {
-            throw new IllegalStateException("User session already closed");
         }
     }
 

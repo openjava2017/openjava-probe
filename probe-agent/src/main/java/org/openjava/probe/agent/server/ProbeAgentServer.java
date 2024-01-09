@@ -105,7 +105,7 @@ public class ProbeAgentServer extends LifeCycle {
         public void onSessionClosed(INioSession nioSession) {
             Session session = sessions.remove(nioSession.getId());
             if (session != null) {
-                session.setState(SessionState.CLOSED);
+                session.destroy();
             }
         }
 

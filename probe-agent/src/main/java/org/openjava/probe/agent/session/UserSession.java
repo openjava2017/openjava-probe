@@ -47,6 +47,13 @@ public class UserSession extends SessionOutputAdapter implements Session {
     }
 
     @Override
+    public void write(Message message) {
+        if (state.get() != SessionState.CLOSED) {
+            super.write(message);
+        }
+    }
+
+    @Override
     public SessionState getState() {
         return this.state.get();
     }

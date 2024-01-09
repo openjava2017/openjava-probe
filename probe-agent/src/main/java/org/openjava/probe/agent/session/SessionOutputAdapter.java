@@ -3,6 +3,7 @@ package org.openjava.probe.agent.session;
 import org.openjava.probe.shared.OutputStream;
 import org.openjava.probe.shared.message.Message;
 import org.openjava.probe.shared.nio.session.INioSession;
+import org.openjava.probe.shared.nio.session.SessionState;
 
 public class SessionOutputAdapter implements OutputStream<Message> {
     protected final INioSession session;
@@ -13,7 +14,9 @@ public class SessionOutputAdapter implements OutputStream<Message> {
 
     @Override
     public void write(Message message) {
-        session.send(message.toBytes());
+        if (session.getState() == SessionState.CONNECTED) {
+            session.send(message.toBytes());
+        }
     }
 
     @Override
