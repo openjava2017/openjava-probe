@@ -3,6 +3,16 @@ plugins {
 }
 
 allprojects {
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
+
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
     group = 'org.openjava'
     version = '1.0.0'
 

@@ -16,7 +16,7 @@ public class CommandPanel extends JPanel {
         setBorder(BorderFactory.createEtchedBorder());
         setBackground(Color.LIGHT_GRAY);
         command = new JTextField();
-        command.setPreferredSize(new Dimension(663, 40));
+        command.setPreferredSize(new Dimension(650, 40));
         command.setMargin(new Insets(0, 100, 0, 0));
         command.addKeyListener(new KeyAdapter() {
             @Override
