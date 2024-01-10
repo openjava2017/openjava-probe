@@ -18,7 +18,7 @@ public class ProcessDialog extends JDialog {
         super(owner);
         this.console = console;
         setTitle("Select a java process...");
-        setSize(340, 200);
+        setSize(460, 300);
         setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
         setModal(true);

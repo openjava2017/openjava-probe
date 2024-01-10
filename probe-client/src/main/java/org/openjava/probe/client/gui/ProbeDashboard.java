@@ -147,7 +147,7 @@ public class ProbeDashboard extends JFrame {
                 statusBar.setStatus(process.mainClass() + " connected");
                 popupMenu.getComponent(0).setEnabled(false);
                 popupMenu.getComponent(1).setEnabled(true);
-                popupMenu.getComponent(3).setEnabled(true);
+                popupMenu.getComponent(3).setEnabled(false);
                 commandPanel.setEnabled(true);
             } else {
                 statusBar.setStatus(process.mainClass() + " connect failed");

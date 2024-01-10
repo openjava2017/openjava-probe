@@ -17,7 +17,7 @@ public class CommandPanel extends JPanel {
         setBackground(Color.LIGHT_GRAY);
         command = new JTextField();
         command.setPreferredSize(new Dimension(650, 40));
-        command.setMargin(new Insets(0, 100, 0, 0));
+        command.setMargin(new Insets(0, 6, 0, 0));
         command.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent event) {
