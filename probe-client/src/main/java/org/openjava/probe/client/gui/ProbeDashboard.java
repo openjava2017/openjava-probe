@@ -100,6 +100,13 @@ public class ProbeDashboard extends JFrame {
         popupMenu.add(cancelMenuItem);
 
         consolePanel.addMouseListener(new MouseAdapter() {
+            // For mac
+            public void mousePressed(MouseEvent event) {
+                if(event.isPopupTrigger()) {
+                    popupMenu.show(event.getComponent(), event.getX(), event.getY());
+                }
+            }
+            // For windows
             public void mouseReleased(MouseEvent event) {
                 if(event.isPopupTrigger()) {
                     popupMenu.show(event.getComponent(), event.getX(), event.getY());

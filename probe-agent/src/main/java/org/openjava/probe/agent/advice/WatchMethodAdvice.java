@@ -25,7 +25,7 @@ public class WatchMethodAdvice extends ProbeMethodAdvice {
                 pointcut.methodName(), JsonMapper.toJson(params))));
 
             // TODO: probably maxTimes is not accurate in multi-thread concurrency scenario, but it doesn't matter
-            if (times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
+            if (param.maxTimes() != null && times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
                 session.clearMethodAdvices();
                 session.synchronize();
             }
@@ -39,7 +39,7 @@ public class WatchMethodAdvice extends ProbeMethodAdvice {
                 pointcut.clazz().getName(), pointcut.methodName(), JsonMapper.toJson(params), returnObject)));
 
             // probably maxTimes is not accurate in multi-thread concurrency scenario, but it doesn't matter
-            if (times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
+            if (param.maxTimes() != null && times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
                 session.clearMethodAdvices();
                 session.synchronize();
             }
@@ -53,7 +53,7 @@ public class WatchMethodAdvice extends ProbeMethodAdvice {
                 pointcut.clazz().getName(), pointcut.methodName(), JsonMapper.toJson(params), ex.getClass().getSimpleName())));
 
             // probably maxTimes is not accurate in multi-thread concurrency scenario, but it doesn't matter
-            if (times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
+            if (param.maxTimes() != null && times.incrementAndGet() >= param.maxTimes() && session.compareAndSet(SessionState.BUSY, SessionState.IDLE)) {
                 session.clearMethodAdvices();
                 session.synchronize();
             }

@@ -21,7 +21,7 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
         Session session = context.session();
         if (session.compareAndSet(SessionState.IDLE, SessionState.BUSY)) {
             ClassTransformerManager transformerManager = ProbeAgentServer.getInstance().transformerManager();
-            WatchMethodCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param().maxTimes));
+            WatchMethodCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param.maxTimes));
             transformerManager.enhance(context.instrumentation(), param().className, param().methodName, callback);
             if (callback.matchedMethods() > 0) {
                 session.synchronize();
@@ -70,7 +70,7 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
                     }
                     String key = param.substring(0, index);
                     String value = param.substring(index + 1, param.length());
-                    if ("maxTime".equalsIgnoreCase(key)) {
+                    if ("maxTimes".equalsIgnoreCase(key)) {
                         try {
                             maxTimes = Integer.parseInt(value);
                         } catch (Exception ex) {
@@ -82,7 +82,7 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
                 } else if (param.equalsIgnoreCase("-after")) {
                     this.watchMode = WatchMode.AFTER;
                 } else {
-                    throw new IllegalArgumentException("Illegal monitor command params");
+                    throw new IllegalArgumentException("Illegal watch command params");
                 }
             }
         }

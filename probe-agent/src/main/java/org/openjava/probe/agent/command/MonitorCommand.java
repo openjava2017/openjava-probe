@@ -68,7 +68,7 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
                     }
                     String key = param.substring(0, index);
                     String value = param.substring(index + 1, param.length());
-                    if ("maxTime".equalsIgnoreCase(key)) {
+                    if ("maxTimes".equalsIgnoreCase(key)) {
                         try {
                             maxTimes = Integer.parseInt(value);
                         } catch (Exception ex) {
