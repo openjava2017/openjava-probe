@@ -20,6 +20,8 @@ public class GuiEventMulticaster {
 
     private SessionStateListener sessionStateListener;
 
+    private DumpEventListener dumpEventListener;
+
     private GuiEventMulticaster() {
     }
 
@@ -84,6 +86,16 @@ public class GuiEventMulticaster {
     public void fireSessionStateEvent(SessionStateEvent event) {
         if (sessionStateListener != null) {
             sessionStateListener.stateChange(event);
+        }
+    }
+
+    public void installDumpEventListener(DumpEventListener dumpEventListener) {
+        this.dumpEventListener = dumpEventListener;
+    }
+
+    public void fireDumpEvent(DumpEvent event) {
+        if (dumpEventListener != null) {
+            dumpEventListener.onDump(event);
         }
     }
 }

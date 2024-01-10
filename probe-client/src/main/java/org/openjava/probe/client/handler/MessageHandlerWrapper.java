@@ -18,6 +18,7 @@ public class MessageHandlerWrapper {
     static {
         handlers.put(MessageHeader.INFO_MESSAGE.getCode(), UserMessageHandler.class);
         handlers.put(MessageHeader.SESSION_STATE.getCode(), SessionStateHandler.class);
+        handlers.put(MessageHeader.DUMP_CLASS.getCode(), DumpClassHandler.class);
     }
 
     public MessageHandlerWrapper(Context context, Message message) {

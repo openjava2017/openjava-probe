@@ -20,11 +20,11 @@ public class Message {
     }
 
     public static Message info(String payload) {
-        return of(MessageHeader.INFO_MESSAGE, new InfoMessage(InfoMessage.INFO_LEVEL, payload), InfoPayloadCodec.getEncoder());
+        return of(MessageHeader.INFO_MESSAGE, InfoMessage.of(InfoMessage.INFO_LEVEL, payload), InfoPayloadCodec.getEncoder());
     }
 
     public static Message error(String payload) {
-        return of(MessageHeader.INFO_MESSAGE, new InfoMessage(InfoMessage.ERROR_LEVEL, payload), InfoPayloadCodec.getEncoder());
+        return of(MessageHeader.INFO_MESSAGE, InfoMessage.of(InfoMessage.ERROR_LEVEL, payload), InfoPayloadCodec.getEncoder());
     }
 
     public static Message of(MessageHeader header, String payload, PayloadEncoder<String> encoder) {
@@ -41,9 +41,10 @@ public class Message {
         byte[] data = new byte[0];
         if (byteBuffer.remaining() > 0) {
             data = new byte[byteBuffer.remaining()];
-            for (int i = 0; byteBuffer.hasRemaining(); i++) {
-                data[i] = byteBuffer.get();
-            }
+            byteBuffer.get(data);
+//            for (int i = 0; byteBuffer.hasRemaining(); i++) {
+//                data[i] = byteBuffer.get();
+//            }
         }
         byteBuffer.clear();
         return new Message(header, data);

@@ -7,9 +7,13 @@ public class InfoMessage {
     private int level;
     private String information;
 
-    public InfoMessage(int level, String information) {
+    private InfoMessage(int level, String information) {
         this.level = level;
         this.information = information;
+    }
+
+    public static InfoMessage of(int level, String information) {
+        return new InfoMessage(level, information);
     }
 
     public int level() {

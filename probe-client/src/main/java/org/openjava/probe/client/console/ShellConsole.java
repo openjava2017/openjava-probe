@@ -51,7 +51,7 @@ public class ShellConsole {
             if (processInfo.length < 2) {
                 continue;
             }
-            if (ClientBootstrap.class.getName().equals(processInfo[1]) || processInfo[1].endsWith(".Jps")) {
+            if (processInfo[1].startsWith("probe-client") || processInfo[1].endsWith(".Jps")) {
                 continue;
             }
             processes.add(JavaProcess.of(processInfo[0], processInfo[1]));

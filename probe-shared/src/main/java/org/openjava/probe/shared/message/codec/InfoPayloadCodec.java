@@ -32,11 +32,12 @@ public class InfoPayloadCodec {
             ByteBuffer packet = ByteBuffer.wrap(payload);
             int level = packet.getInt();
             byte[] data = new byte[packet.remaining()];
-            for (int i = 0; packet.hasRemaining(); i++) {
-                data[i] = packet.get();
-            }
+            packet.get(data);
+//            for (int i = 0; packet.hasRemaining(); i++) {
+//                data[i] = packet.get();
+//            }
             String info = StringPayloadCodec.getDecoder().decode(data);
-            return new InfoMessage(level, info);
+            return InfoMessage.of(level, info);
         }
     }
 }

@@ -2,28 +2,25 @@ package org.openjava.probe.shared.message;
 
 public enum MessageHeader {
     // Agent Server -> Client
-    INFO_MESSAGE((short)0, (short)0),
-    // Client -> Agent Server: monitor className method
-    USER_COMMAND((short)1, (short)0),
+    INFO_MESSAGE(0),
+    // Client -> Agent Server
+    USER_COMMAND(1),
     // Agent Server -> Client
-    SESSION_STATE((short)2, (short)0);
+    SESSION_STATE(2),
+    // Agent Server -> Client
+    DUMP_CLASS(3);
 
-    private short type;
-    private short command;
+    private int code;
 
-    MessageHeader(short type, short command) {
-        this.type = type;
-        this.command = command;
+    MessageHeader(int code) {
+        this.code = code;
     }
 
     public int getCode() {
-        int code = type;
-        return (code << 16) | (command << 16 >>> 16); // remove signed bit
+        return code;
     }
 
     public boolean equalTo(int code) {
-//        (short)(code >>> 16)
-//        (short)(code & 0x0000ffff)
         return this.getCode() == code;
     }
 }

@@ -17,6 +17,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -185,6 +187,33 @@ public class ProbeDashboard extends JFrame {
                     popupMenu.getComponent(3).setEnabled(true);
                 }
             });
+        });
+
+        GuiEventMulticaster.getInstance().installDumpEventListener(event -> {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle(String.format("Save %s ...", event.file().name()));
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            if (chooser.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION) {
+                File dir = chooser.getSelectedFile();
+                File dumpFile = new File(dir, event.file().name() + ".class");
+                if (dumpFile.exists()) {
+                    dumpFile.delete();
+                }
+
+                try {
+                    if (dumpFile.createNewFile()) {
+                        try (FileOutputStream outputStream = new FileOutputStream(dumpFile)) {
+                            outputStream.write(event.file().classBytes());
+                        }
+                        SwingUtilities.invokeLater(() -> consolePanel.info(String.format("class %s saved successfully", dumpFile.getName())));
+                    } else {
+                        SwingUtilities.invokeLater(() -> consolePanel.error("New class file create failed"));
+                    }
+                } catch (Exception ex) {
+                    SwingUtilities.invokeLater(() -> consolePanel.info(String.format("class %s saved failed", dumpFile.getName())));
+                    ex.printStackTrace();
+                }
+            }
         });
 
         addWindowListener(new WindowAdapter() {

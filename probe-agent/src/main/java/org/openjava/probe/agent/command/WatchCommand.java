@@ -54,7 +54,7 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
         @Override
         public void parseParams(String[] params) {
             if (params.length < 2) {
-                throw new IllegalArgumentException("Miss monitor command params");
+                throw new IllegalArgumentException("Miss watch command params");
             }
 
             this.className = params[0];

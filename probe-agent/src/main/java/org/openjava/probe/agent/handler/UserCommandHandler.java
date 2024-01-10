@@ -19,6 +19,7 @@ public class UserCommandHandler extends MessageHandler<Command> {
     static {
         commands.put("monitor", MonitorCommand.class);
         commands.put("watch", WatchCommand.class);
+        commands.put("dump", DumpCommand.class);
         commands.put("cancel", CancelCommand.class);
         commands.put("quit", QuitCommand.class);
     }
