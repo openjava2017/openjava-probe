@@ -1,4 +1,4 @@
-package org.openjava.probe.client.boot;
+package org.openjava.probe.client;
 
 import org.openjava.probe.client.context.UserEnvironment;
 import org.openjava.probe.client.gui.ProbeDashboard;

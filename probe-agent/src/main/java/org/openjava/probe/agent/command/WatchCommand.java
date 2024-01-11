@@ -41,7 +41,7 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
         return WatchParam.class;
     }
 
-    static class WatchParam extends ProbeParam {
+    public static class WatchParam extends ProbeParam {
         private String className;
         private String methodName;
         private WatchMode watchMode;
@@ -63,13 +63,13 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
             for (int i = 2; i < params.length; i++) {
                 String param = params[i];
                 if (param.startsWith("-p")) {
-                    param = param.substring(2, param.length());
+                    param = param.substring(2);
                     int index = param.indexOf('=');
                     if (index <= 0 || index >= param.length() - 1) {
                         throw new IllegalArgumentException("Illegal watch command params");
                     }
                     String key = param.substring(0, index);
-                    String value = param.substring(index + 1, param.length());
+                    String value = param.substring(index + 1);
                     if ("maxTimes".equalsIgnoreCase(key)) {
                         try {
                             maxTimes = Integer.parseInt(value);

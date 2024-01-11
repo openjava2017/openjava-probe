@@ -40,7 +40,7 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
         return MonitorParam.class;
     }
 
-    static class MonitorParam extends ProbeCommand.ProbeParam {
+    public static class MonitorParam extends ProbeCommand.ProbeParam {
         private String className;
         private String methodName;
         private Integer maxTimes;
@@ -61,13 +61,13 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
             for (int i = 2; i < params.length; i++) {
                 String param = params[i];
                 if (param.startsWith("-p")) {
-                    param = param.substring(2, param.length());
+                    param = param.substring(2);
                     int index = param.indexOf('=');
                     if (index <= 0 || index >= param.length() - 1) {
                         throw new IllegalArgumentException("Illegal monitor command params");
                     }
                     String key = param.substring(0, index);
-                    String value = param.substring(index + 1, param.length());
+                    String value = param.substring(index + 1);
                     if ("maxTimes".equalsIgnoreCase(key)) {
                         try {
                             maxTimes = Integer.parseInt(value);

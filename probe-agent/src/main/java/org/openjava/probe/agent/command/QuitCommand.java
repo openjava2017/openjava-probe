@@ -23,7 +23,7 @@ public class QuitCommand extends ProbeCommand<QuitCommand.QuitParam> {
         return QuitParam.class;
     }
 
-    static class QuitParam extends ProbeParam {
+    public static class QuitParam extends ProbeParam {
         public QuitParam(String[] params) {
             super(params);
         }

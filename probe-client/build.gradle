@@ -8,7 +8,7 @@ jar {
     manifestContentCharset 'utf-8'
     metadataCharset 'utf-8'
     manifest {
-        attributes "Main-Class" : "org.openjava.probe.client.boot.ClientBootstrap"
+        attributes "Main-Class" : "org.openjava.probe.client.ClientBootstrap"
         attributes "Specification-Title" : project.name
         attributes "Specification-Version" : project.version
         attributes "Implementation-Title" : project.name

@@ -32,7 +32,7 @@ public abstract class ProbeCommand<T extends ProbeCommand.ProbeParam> implements
         public abstract void parseParams(String[] params);
     }
 
-    static class NoneParam extends ProbeParam {
+    public static class NoneParam extends ProbeParam {
         public NoneParam(String[] params) {
             super(params);
         }

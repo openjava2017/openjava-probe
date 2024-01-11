@@ -15,8 +15,7 @@ public class AgentClassloader extends ClassLoader {
     private final IResourceFactory resourceFactory;
 
     public AgentClassloader(URL[] urls) {
-        super();
-        resourceFactory = initResourceFactory(urls);
+        this(urls, getSystemClassLoader().getParent());
     }
 
     public AgentClassloader(URL[] urls, ClassLoader parent) {

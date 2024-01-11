@@ -22,14 +22,14 @@ public class DumpCommand extends ProbeCommand<DumpCommand.DumpParam> {
 
     @Override
     public void execute(Context context) {
-        Class matchedClass = null;
+        Class<?> matchedClass = null;
         Instrumentation instrumentation = context.instrumentation();
         Session session = context.session();
         Matcher<String> matcher = new NameFullMatcher(param.className);
-        Class[] allClasses = instrumentation.getAllLoadedClasses();
-        for (int i = 0; i < allClasses.length; i++) {
-            if (matcher.match(allClasses[i].getName())) {
-                matchedClass = allClasses[i];
+        Class<?>[] allClasses = instrumentation.getAllLoadedClasses();
+        for (Class<?> allClass : allClasses) {
+            if (matcher.match(allClass.getName())) {
+                matchedClass = allClass;
                 break;
             }
         }
@@ -47,12 +47,12 @@ public class DumpCommand extends ProbeCommand<DumpCommand.DumpParam> {
                 }
             } catch (Throwable ex) {
                 ex.printStackTrace();
-                session.write(Message.error(String.format("dump class %s failed.", matchedClass.getSimpleName())));
+                session.write(Message.error(String.format("dump class %s failed.", param.className)));
             } finally {
                 transformerManager.removeClassFileTransformer(transformer);
             }
         } else {
-            session.write(Message.error(String.format("no class %s found.", matchedClass.getSimpleName())));
+            session.write(Message.error(String.format("no class %s found.", param.className)));
         }
     }
 
@@ -61,7 +61,7 @@ public class DumpCommand extends ProbeCommand<DumpCommand.DumpParam> {
         return DumpParam.class;
     }
 
-    static class DumpParam extends ProbeParam {
+    public static class DumpParam extends ProbeParam {
         private String className;
 
         public DumpParam(String[] params) {

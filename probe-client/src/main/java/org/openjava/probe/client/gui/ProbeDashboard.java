@@ -32,7 +32,6 @@ public class ProbeDashboard extends JFrame {
     private final ConsolePanel consolePanel;
     private final StatusBar statusBar;
     private final ProcessDialog processDialog;
-    private final ExecutorService executorService;
     private final ProbeAgentClient client;
     private volatile Session session;
 
@@ -44,7 +43,7 @@ public class ProbeDashboard extends JFrame {
         this.consolePanel = new ConsolePanel();
         this.statusBar = new StatusBar();
         this.processDialog = new ProcessDialog(shellConsole, this);
-        this.executorService = new ThreadPoolExecutor(2, 10, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
+        ExecutorService executorService = new ThreadPoolExecutor(2, 10, 4, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
         this.client = new ProbeAgentClient(environment, executorService);
 
         setTitle("Dashboard");
@@ -127,9 +126,7 @@ public class ProbeDashboard extends JFrame {
     }
 
     private void installEventListener() {
-        GuiEventMulticaster.getInstance().installProcessConsumer(process -> {
-            attach(process);
-        });
+        GuiEventMulticaster.getInstance().installProcessConsumer(this::attach);
 
         GuiEventMulticaster.getInstance().installCommandConsumer(command -> {
             if (session != null) {
@@ -184,17 +181,15 @@ public class ProbeDashboard extends JFrame {
             });
         });
 
-        GuiEventMulticaster.getInstance().installSessionStateListener(event -> {
-            SwingUtilities.invokeLater(() -> {
-                if (event.state() == SessionState.IDLE) {
-                    commandPanel.setEnabled(true);
-                    popupMenu.getComponent(3).setEnabled(false);
-                } else if (event.state() == SessionState.BUSY) {
-                    commandPanel.setEnabled(false);
-                    popupMenu.getComponent(3).setEnabled(true);
-                }
-            });
-        });
+        GuiEventMulticaster.getInstance().installSessionStateListener(event -> SwingUtilities.invokeLater(() -> {
+            if (event.state() == SessionState.IDLE) {
+                commandPanel.setEnabled(true);
+                popupMenu.getComponent(3).setEnabled(false);
+            } else if (event.state() == SessionState.BUSY) {
+                commandPanel.setEnabled(false);
+                popupMenu.getComponent(3).setEnabled(true);
+            }
+        }));
 
         GuiEventMulticaster.getInstance().installDumpEventListener(event -> {
             JFileChooser chooser = new JFileChooser();

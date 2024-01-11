@@ -2,7 +2,8 @@ package org.openjava.probe.client.console;
 
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
-import org.openjava.probe.client.boot.ClientBootstrap;
+import org.openjava.probe.client.ClientBootstrap;
+import org.openjava.probe.client.Constants;
 import org.openjava.probe.client.context.Environment;
 import org.openjava.probe.shared.ErrorCode;
 import org.openjava.probe.shared.exception.ProbeServiceException;
@@ -15,9 +16,6 @@ import java.security.CodeSource;
 import java.util.*;
 
 public class ShellConsole {
-    private static final String PROBE_BOOT_JAR = "probe-boot-1.0.0.jar";
-    private static final String PROBE_SHARED_JAR = "probe-shared-1.0.0.jar";
-
     private final Environment environment;
 
     public ShellConsole(Environment environment) {
@@ -101,12 +99,12 @@ public class ShellConsole {
         } catch (Exception ex) {
             jarHomeFile = new File(environment.getRequiredProperty("user.dir"));
         }
-        File bootJarFile = new File(jarHomeFile, PROBE_BOOT_JAR);
+        File bootJarFile = new File(jarHomeFile, Constants.PROBE_BOOT_JAR);
         if (!bootJarFile.exists()) {
             System.err.println(bootJarFile.getAbsolutePath() + " not found");
             throw new ProbeServiceException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, bootJarFile.getAbsolutePath() + " not found");
         }
-        File sharedJarFile = new File(jarHomeFile, PROBE_SHARED_JAR);
+        File sharedJarFile = new File(jarHomeFile, Constants.PROBE_SHARED_JAR);
         if (!sharedJarFile.exists()) {
             System.err.println(sharedJarFile.getAbsolutePath() + " not found");
             throw new ProbeServiceException(ErrorCode.ILLEGAL_ARGUMENT_ERROR, sharedJarFile.getAbsolutePath() + " not found");

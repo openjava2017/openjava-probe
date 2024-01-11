@@ -20,8 +20,8 @@ public class ClassTransformerManager implements ClassFileTransformer {
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
-        for (int i = 0; i < transformers.size(); i++) {
-            byte[] classBytes = transformers.get(i).transform(loader, className, classRedefined, domain, classfileBuffer);
+        for (ClassFileTransformer transformer : transformers) {
+            byte[] classBytes = transformer.transform(loader, className, classRedefined, domain, classfileBuffer);
             if (classBytes != null) {
                 classfileBuffer = classBytes;
             }
@@ -42,12 +42,12 @@ public class ClassTransformerManager implements ClassFileTransformer {
     }
 
     public void enhance(Instrumentation instrumentation, String className, String methodName, ProbeCallback callback) {
-        Class matchedClass = null;
+        Class<?> matchedClass = null;
         Matcher<String> matcher = new NameFullMatcher(className);
-        Class[] allClasses = instrumentation.getAllLoadedClasses();
-        for (int i = 0; i < allClasses.length; i++) {
-            if (matcher.match(allClasses[i].getName()) && enhanceAllowed(allClasses[i])) {
-                matchedClass = allClasses[i];
+        Class<?>[] allClasses = instrumentation.getAllLoadedClasses();
+        for (Class<?> allClass : allClasses) {
+            if (matcher.match(allClass.getName()) && enhanceAllowed(allClass)) {
+                matchedClass = allClass;
                 break;
             }
         }
@@ -63,14 +63,14 @@ public class ClassTransformerManager implements ClassFileTransformer {
                 ex.printStackTrace();
                 LOG.warn("re-transform class {} failed.", matchedClass, ex);
             } finally {
-                if (transformers != null) {
+                if (transformer != null) {
                     transformers.remove(transformer);
                 }
             }
         }
     }
 
-    private boolean enhanceAllowed(Class clazz) {
+    private boolean enhanceAllowed(Class<?> clazz) {
         if (clazz.isAnnotation() || clazz.isArray() || clazz.isInterface() || clazz.isEnum() ||
             clazz.isAnonymousClass() || clazz.isPrimitive()) {
             return false;
@@ -78,10 +78,7 @@ public class ClassTransformerManager implements ClassFileTransformer {
 
         // for safety reason: System Class, Probe Class not allowed to be enhanced
         ClassLoader classLoader = clazz.getClassLoader();
-        if (classLoader == null || classLoader == ClassLoader.getPlatformClassLoader() ||
-            classLoader == getClass().getClassLoader()) {
-            return false;
-        }
-        return true;
+        return classLoader != null && classLoader != ClassLoader.getSystemClassLoader().getParent() &&
+            classLoader != getClass().getClassLoader();
     }
 }
