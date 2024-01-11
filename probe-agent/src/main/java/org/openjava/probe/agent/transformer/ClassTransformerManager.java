@@ -20,13 +20,18 @@ public class ClassTransformerManager implements ClassFileTransformer {
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
-        for (ClassFileTransformer transformer : transformers) {
-            byte[] classBytes = transformer.transform(loader, className, classRedefined, domain, classfileBuffer);
-            if (classBytes != null) {
-                classfileBuffer = classBytes;
+        try {
+            for (ClassFileTransformer transformer : transformers) {
+                byte[] classBytes = transformer.transform(loader, className, classRedefined, domain, classfileBuffer);
+                if (classBytes != null) {
+                    classfileBuffer = classBytes;
+                }
             }
+            return classfileBuffer;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return classfileBuffer;
     }
 
     public void addClassFileTransformer(ClassFileTransformer transformer) {
@@ -52,7 +57,7 @@ public class ClassTransformerManager implements ClassFileTransformer {
             }
         }
 
-        if (matchedClass != null) {
+        if (matchedClass != null && instrumentation.isModifiableClass(matchedClass)) {
             ClassFileTransformer transformer = null;
             try {
                 NameFullMatcher methodMatcher = new NameFullMatcher(methodName);

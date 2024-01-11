@@ -27,9 +27,9 @@ public class DumpCommand extends ProbeCommand<DumpCommand.DumpParam> {
         Session session = context.session();
         Matcher<String> matcher = new NameFullMatcher(param.className);
         Class<?>[] allClasses = instrumentation.getAllLoadedClasses();
-        for (Class<?> allClass : allClasses) {
-            if (matcher.match(allClass.getName())) {
-                matchedClass = allClass;
+        for (Class<?> clazz : allClasses) {
+            if (matcher.match(clazz.getName())) {
+                matchedClass = clazz;
                 break;
             }
         }

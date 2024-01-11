@@ -192,30 +192,32 @@ public class ProbeDashboard extends JFrame {
         }));
 
         GuiEventMulticaster.getInstance().installDumpEventListener(event -> {
-            JFileChooser chooser = new JFileChooser();
-            chooser.setDialogTitle(String.format("Save %s ...", event.file().name()));
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            if (chooser.showOpenDialog(getParent()) == JFileChooser.APPROVE_OPTION) {
-                File dir = chooser.getSelectedFile();
-                File dumpFile = new File(dir, event.file().name() + ".class");
-                if (dumpFile.exists()) {
-                    dumpFile.delete();
-                }
-
-                try {
-                    if (dumpFile.createNewFile()) {
-                        try (FileOutputStream outputStream = new FileOutputStream(dumpFile)) {
-                            outputStream.write(event.file().classBytes());
-                        }
-                        SwingUtilities.invokeLater(() -> consolePanel.info(String.format("class %s saved successfully", dumpFile.getName())));
-                    } else {
-                        SwingUtilities.invokeLater(() -> consolePanel.error("New class file create failed"));
+            SwingUtilities.invokeLater(() -> {
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle(String.format("Save %s ...", event.file().name()));
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                if (chooser.showSaveDialog(getParent()) == JFileChooser.APPROVE_OPTION) {
+                    File dir = chooser.getSelectedFile();
+                    File dumpFile = new File(dir, event.file().name() + ".class");
+                    if (dumpFile.exists()) {
+                        dumpFile.delete();
                     }
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() -> consolePanel.info(String.format("class %s saved failed", dumpFile.getName())));
-                    ex.printStackTrace();
+
+                    try {
+                        if (dumpFile.createNewFile()) {
+                            try (FileOutputStream outputStream = new FileOutputStream(dumpFile)) {
+                                outputStream.write(event.file().classBytes());
+                            }
+                            consolePanel.info(String.format("class %s saved successfully", dumpFile.getName()));
+                        } else {
+                            consolePanel.error("New class file create failed");
+                        }
+                    } catch (Exception ex) {
+                        consolePanel.info(String.format("class %s saved failed", dumpFile.getName()));
+                        ex.printStackTrace();
+                    }
                 }
-            }
+            });
         });
 
         addWindowListener(new WindowAdapter() {
