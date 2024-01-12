@@ -9,16 +9,20 @@ import org.openjava.probe.shared.message.codec.IntegerPayloadCodec;
 import org.openjava.probe.shared.nio.session.INioSession;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class UserSession extends SessionOutputAdapter implements Session {
     private final List<ProbeMethodAdvice> advices = new ArrayList<>();
     private final AtomicReference<SessionState> state;
+    private final Set<Class<?>> cachedClasses;
 
     public UserSession(INioSession session) {
         super(session);
         this.state = new AtomicReference<>(SessionState.IDLE);
+        this.cachedClasses = new HashSet<>();
     }
 
     @Override
@@ -51,6 +55,16 @@ public class UserSession extends SessionOutputAdapter implements Session {
         if (state.get() != SessionState.CLOSED) {
             super.write(message);
         }
+    }
+
+    @Override
+    public void addCachedClass(Class<?> clazz) {
+        cachedClasses.add(clazz);
+    }
+
+    @Override
+    public Set<Class<?>> cachedClasses() {
+        return cachedClasses;
     }
 
     @Override

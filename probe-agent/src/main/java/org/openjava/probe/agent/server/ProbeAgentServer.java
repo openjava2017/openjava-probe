@@ -3,12 +3,11 @@ package org.openjava.probe.agent.server;
 import org.openjava.probe.agent.advice.MethodAdviceManager;
 import org.openjava.probe.agent.api.ThreadLocalMethodListener;
 import org.openjava.probe.agent.context.Context;
-import org.openjava.probe.agent.context.ExecuteContext;
 import org.openjava.probe.agent.context.Environment;
+import org.openjava.probe.agent.context.ExecuteContext;
 import org.openjava.probe.agent.context.ProbeEnvironment;
 import org.openjava.probe.agent.handler.UserMessageHandler;
 import org.openjava.probe.agent.session.Session;
-import org.openjava.probe.agent.session.SessionState;
 import org.openjava.probe.agent.session.UserSession;
 import org.openjava.probe.agent.transformer.ClassTransformerManager;
 import org.openjava.probe.core.api.ProbeMethodAPI;
@@ -114,6 +113,13 @@ public class ProbeAgentServer extends LifeCycle {
                 } catch (Exception ex) {
                     // Ignore it
                 }
+            }
+
+            try {
+                // Reset class bytes enhancement
+                instrumentation.retransformClasses(session.cachedClasses().toArray(new Class<?>[0]));
+            } catch (Exception ex) {
+                //Ignore it
             }
         }
 

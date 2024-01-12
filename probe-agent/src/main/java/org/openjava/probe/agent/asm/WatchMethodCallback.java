@@ -7,8 +7,7 @@ import org.openjava.probe.agent.data.WatchAdviceParam;
 import org.openjava.probe.agent.session.Session;
 
 public class WatchMethodCallback implements ProbeCallback {
-    private Class clazz;
-    private int matchedClasses;
+    private Class<?> clazz;
     private int matchedMethods;
     private final Session session;
     private final WatchAdviceParam param;
@@ -19,9 +18,8 @@ public class WatchMethodCallback implements ProbeCallback {
     }
 
     @Override
-    public void onClassProbe(Class clazz) {
+    public void onClassProbe(Class<?> clazz) {
         this.clazz = clazz;
-        this.matchedClasses++;
     }
 
     @Override
@@ -34,10 +32,12 @@ public class WatchMethodCallback implements ProbeCallback {
         this.matchedMethods ++;
     }
 
-    public int matchedClasses() {
-        return this.matchedClasses;
+    @Override
+    public Class<?> matchedClass() {
+        return this.clazz;
     }
 
+    @Override
     public int matchedMethods() {
         return this.matchedMethods;
     }

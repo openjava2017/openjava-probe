@@ -7,8 +7,7 @@ import org.openjava.probe.agent.data.MonitorAdviceParam;
 import org.openjava.probe.agent.session.Session;
 
 public class MonitorMethodCallback implements ProbeCallback {
-    private Class clazz;
-    private int matchedClasses;
+    private Class<?> clazz;
     private int matchedMethods;
     private final Session session;
     private final MonitorAdviceParam param;
@@ -19,9 +18,8 @@ public class MonitorMethodCallback implements ProbeCallback {
     }
 
     @Override
-    public void onClassProbe(Class clazz) {
+    public void onClassProbe(Class<?> clazz) {
         this.clazz = clazz;
-        this.matchedClasses++;
     }
 
     @Override
@@ -34,10 +32,12 @@ public class MonitorMethodCallback implements ProbeCallback {
         this.matchedMethods ++;
     }
 
-    public int matchedClasses() {
-        return this.matchedClasses;
+    @Override
+    public Class<?> matchedClass() {
+        return this.clazz;
     }
 
+    @Override
     public int matchedMethods() {
         return this.matchedMethods;
     }

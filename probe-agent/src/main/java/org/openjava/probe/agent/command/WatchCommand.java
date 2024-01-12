@@ -24,9 +24,10 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
             WatchMethodCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param.maxTimes));
             transformerManager.enhance(context.instrumentation(), param().className, param().methodName, callback);
             if (callback.matchedMethods() > 0) {
+                session.write(Message.info(String.format("%s methods watched in %s class",
+                    callback.matchedMethods(), callback.matchedClass().getSimpleName())));
                 session.synchronize();
-                session.write(Message.info(String.format("%s classes matched, %s methods enhanced",
-                    callback.matchedClasses(), callback.matchedMethods())));
+                session.addCachedClass(callback.matchedClass());
             } else {
                 session.setState(SessionState.IDLE);
                 session.write(Message.error("No methods enhanced"));

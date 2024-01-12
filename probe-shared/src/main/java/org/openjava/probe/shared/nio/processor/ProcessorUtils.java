@@ -52,7 +52,7 @@ public class ProcessorUtils {
         public void run() {
             if (session != null) {
                 SelectionKey key = session.getSelectionKey();
-                if (key != null && key.isValid()) {
+                if (key.isValid()) {
                     key.cancel();
                 }
                 closeQuietly(session.getChannel());

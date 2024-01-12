@@ -23,9 +23,10 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
             MonitorMethodCallback callback = new MonitorMethodCallback(session, MonitorAdviceParam.of(param.maxTimes));
             transformerManager.enhance(context.instrumentation(), param.className, param.methodName, callback);
             if (callback.matchedMethods() > 0) {
+                session.write(Message.info(String.format("%s methods monitored in %s class",
+                    callback.matchedMethods(), callback.matchedClass().getSimpleName())));
                 session.synchronize();
-                session.write(Message.info(String.format("%s classes matched, %s methods enhanced",
-                    callback.matchedClasses(), callback.matchedMethods())));
+                session.addCachedClass(callback.matchedClass());
             } else {
                 session.setState(SessionState.IDLE);
                 session.write(Message.error("No methods enhanced"));
