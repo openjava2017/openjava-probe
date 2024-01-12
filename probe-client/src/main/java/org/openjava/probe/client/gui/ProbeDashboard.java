@@ -114,7 +114,7 @@ public class ProbeDashboard extends JFrame {
         });
 
         attachMenuItem.addActionListener(event -> processDialog.showDialog());
-        detachMenuItem.addActionListener(event -> session.send("quit"));
+        detachMenuItem.addActionListener(event -> session.send("exit"));
         cancelMenuItem.addActionListener(event -> session.send("cancel"));
     }
 

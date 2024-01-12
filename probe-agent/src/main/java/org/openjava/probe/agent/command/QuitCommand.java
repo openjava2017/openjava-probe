@@ -4,7 +4,7 @@ import org.openjava.probe.agent.context.Context;
 import org.openjava.probe.agent.server.ProbeAgentServer;
 import org.openjava.probe.shared.message.Message;
 
-public class QuitCommand extends ProbeCommand<QuitCommand.QuitParam> {
+public class QuitCommand extends ProbeCommand<ProbeCommand.NoneParam> {
     public QuitCommand(String[] params) throws Exception {
         super(params);
     }
@@ -19,17 +19,7 @@ public class QuitCommand extends ProbeCommand<QuitCommand.QuitParam> {
     }
 
     @Override
-    public Class<QuitParam> paramClass() {
-        return QuitParam.class;
-    }
-
-    public static class QuitParam extends ProbeParam {
-        public QuitParam(String[] params) {
-            super(params);
-        }
-
-        @Override
-        public void parseParams(String[] params) {
-        }
+    public Class<NoneParam> paramClass() {
+        return NoneParam.class;
     }
 }

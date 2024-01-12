@@ -22,12 +22,12 @@ public class ProcessorUtils {
         @Override
         public void run() {
             for (SelectionKey key : selector.keys()) {
-                Object attachment = key.attachment();
                 if (key.isValid()) {
                     key.cancel();
                 }
                 closeQuietly(key.channel());
 
+                Object attachment = key.attachment();
                 if (attachment instanceof SessionContext) {
                     SessionContext context = (SessionContext) attachment;
                     context.fireSessionClosed();
@@ -55,8 +55,13 @@ public class ProcessorUtils {
                 if (key != null && key.isValid()) {
                     key.cancel();
                 }
-                
                 closeQuietly(session.getChannel());
+
+                Object attachment = key.attachment();
+                if (attachment instanceof SessionContext) {
+                    SessionContext context = (SessionContext) attachment;
+                    context.fireSessionClosed();
+                }
             }
         }
     }

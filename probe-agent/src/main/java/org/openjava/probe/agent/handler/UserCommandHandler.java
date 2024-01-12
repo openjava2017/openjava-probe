@@ -21,6 +21,7 @@ public class UserCommandHandler extends MessageHandler<Command> {
         commands.put("watch", WatchCommand.class);
         commands.put("dump", DumpCommand.class);
         commands.put("cancel", CancelCommand.class);
+        commands.put("exit", ExitCommand.class);
         commands.put("quit", QuitCommand.class);
     }
 

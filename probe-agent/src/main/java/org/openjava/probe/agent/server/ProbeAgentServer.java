@@ -107,6 +107,14 @@ public class ProbeAgentServer extends LifeCycle {
             if (session != null) {
                 session.destroy();
             }
+
+            if (sessions.isEmpty()) {
+                try {
+                    ProbeAgentServer.this.stop();
+                } catch (Exception ex) {
+                    // Ignore it
+                }
+            }
         }
 
         @Override
