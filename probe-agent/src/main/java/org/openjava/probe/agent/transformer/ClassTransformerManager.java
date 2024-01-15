@@ -1,13 +1,12 @@
 package org.openjava.probe.agent.transformer;
 
-import org.openjava.probe.agent.asm.ProbeCallback;
+import org.openjava.probe.agent.asm.ProbeMethodContext;
 import org.openjava.probe.shared.log.Logger;
 import org.openjava.probe.shared.log.LoggerFactory;
 import org.openjava.probe.shared.util.Matcher;
 import org.openjava.probe.shared.util.NameFullMatcher;
 
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -18,8 +17,7 @@ public class ClassTransformerManager implements ClassFileTransformer {
 
     private final List<ClassFileTransformer> transformers = new CopyOnWriteArrayList<>();
 
-    public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain,
-                            byte[] classfileBuffer) throws IllegalClassFormatException {
+    public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain, byte[] classfileBuffer) {
         try {
             for (ClassFileTransformer transformer : transformers) {
                 byte[] classBytes = transformer.transform(loader, className, classRedefined, domain, classfileBuffer);
@@ -46,7 +44,7 @@ public class ClassTransformerManager implements ClassFileTransformer {
         this.transformers.clear();
     }
 
-    public void enhance(Instrumentation instrumentation, String className, String methodName, ProbeCallback callback) {
+    public void enhance(Instrumentation instrumentation, String className, String methodName, ProbeMethodContext context) {
         Class<?> matchedClass = null;
         Matcher<String> matcher = new NameFullMatcher(className);
         Class<?>[] allClasses = instrumentation.getAllLoadedClasses();
@@ -61,7 +59,7 @@ public class ClassTransformerManager implements ClassFileTransformer {
             ClassFileTransformer transformer = null;
             try {
                 NameFullMatcher methodMatcher = new NameFullMatcher(methodName);
-                transformer = new ProbeClassFileTransformer(matchedClass, methodMatcher, callback);
+                transformer = new ProbeClassFileTransformer(matchedClass, methodMatcher, context);
                 transformers.add(transformer);
                 instrumentation.retransformClasses(matchedClass);
             } catch (Throwable ex) {

@@ -4,8 +4,4 @@ public interface ProbeCallback {
     void onClassProbe(Class<?> clazz);
 
     void onMethodProbe(int probeId, String methodName, String methodDesc);
-
-    Class<?> matchedClass();
-
-    int matchedMethods();
 }

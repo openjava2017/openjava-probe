@@ -10,14 +10,18 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestProbeClassVisitor {
     public static void main(String[] args) throws Exception {
-        InputStream is = new FileInputStream("/Users/huanggang/Work/Projects/openjava-probe/probe-shared/build/classes/java/main/org/openjava/probe/shared/asm/ProbeTestService.class");
+        InputStream is = new FileInputStream("/Users/huanggang/Work/Projects/openjava-probe/probe-agent/build/classes/java/main/org/openjava/probe/agent/asm/ProbeTestService.class");
         ClassReader reader = new ClassReader(is);
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-        Matcher<String> methodMatcher = new NameFullMatcher("testProbeAPI");
+        Matcher<String> methodMatcher = new NameFullMatcher("testTraceMethod");
+        List<String> traceMethods = new ArrayList<>();
+        traceMethods.add("println");
         ProbeClassVisitor cv = new ProbeClassVisitor(null, Opcodes.ASM9, cw, methodMatcher, null);
         // 如果MethodVisitor存在LocalVariablesSorter则，需使用EXPAND_FRAMES参数
         reader.accept(cv, ClassReader.EXPAND_FRAMES);

@@ -26,6 +26,14 @@ public final class ProbeMethodAPI {
         listener.onExitMethodOnException(probeId, params, ex);
     }
 
+    public static void beforeInvoke(int probeId, String owner, String name) {
+        listener.onBeforeInvoke(probeId, owner, name);
+    }
+
+    public static void afterInvoke(int probeId, String owner, String name) {
+        listener.onAfterInvoke(probeId, owner, name);
+    }
+
     static class DummyProbeMethodListener implements ProbeMethodListener {
         @Override
         public void onEnterMethod(int probeId, Object[] params) {

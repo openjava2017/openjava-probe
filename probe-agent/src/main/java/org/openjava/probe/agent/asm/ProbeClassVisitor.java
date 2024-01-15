@@ -10,18 +10,18 @@ public class ProbeClassVisitor extends ClassVisitor {
 
     private final Class clazz;
     private final Matcher<String> methodMatcher;
-    private final ProbeCallback callback;
+    private final ProbeMethodContext context;
 
-    public ProbeClassVisitor(Class clazz, int api, ClassVisitor cv, Matcher<String> methodMatcher, ProbeCallback callback) {
+    public ProbeClassVisitor(Class clazz, int api, ClassVisitor cv, Matcher<String> methodMatcher, ProbeMethodContext context) {
         super(api, cv);
         this.clazz = clazz;
         this.methodMatcher = methodMatcher;
-        this.callback = callback;
+        this.context = context;
     }
 
     public void visit(final int version, final int access, final String name, final String signature, final String superName, final String[] interfaces) {
-        if (callback != null) {
-            callback.onClassProbe(clazz);
+        if (context != null) {
+            context.onClassProbe(clazz);
         }
 
         super.visit(version, access, name, signature, superName, interfaces);
@@ -31,7 +31,7 @@ public class ProbeClassVisitor extends ClassVisitor {
         MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
         if (mv != null && methodMatcher.match(name) && !Modifier.isAbstract(access) && !Modifier.isNative(access)) {
-            mv = new ProbeMethodVisitor(api, mv, access, name, descriptor, callback);
+            mv = new ProbeMethodVisitor(api, mv, access, name, descriptor, context);
         }
 
         return mv;

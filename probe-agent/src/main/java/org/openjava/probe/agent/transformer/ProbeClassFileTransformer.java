@@ -3,8 +3,8 @@ package org.openjava.probe.agent.transformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.openjava.probe.agent.asm.ProbeCallback;
 import org.openjava.probe.agent.asm.ProbeClassVisitor;
+import org.openjava.probe.agent.asm.ProbeMethodContext;
 import org.openjava.probe.core.api.ProbeMethodAPI;
 import org.openjava.probe.shared.log.Logger;
 import org.openjava.probe.shared.log.LoggerFactory;
@@ -18,12 +18,12 @@ public class ProbeClassFileTransformer implements ClassFileTransformer {
 
     private final Class clazz;
     private final Matcher methodMatcher;
-    private final ProbeCallback callback;
+    private final ProbeMethodContext context;
 
-    public ProbeClassFileTransformer(Class clazz, Matcher<String> methodMatcher, ProbeCallback callback) {
+    public ProbeClassFileTransformer(Class clazz, Matcher<String> methodMatcher, ProbeMethodContext context) {
         this.clazz = clazz;
         this.methodMatcher = methodMatcher;
-        this.callback = callback;
+        this.context = context;
     }
 
     public byte[] transform(ClassLoader loader, String className, Class<?> classRedefined, ProtectionDomain domain, byte[] classBytes) {
@@ -49,7 +49,7 @@ public class ProbeClassFileTransformer implements ClassFileTransformer {
             }
         };
 
-        ProbeClassVisitor cv = new ProbeClassVisitor(classRedefined, Opcodes.ASM9, cw, methodMatcher, callback);
+        ProbeClassVisitor cv = new ProbeClassVisitor(classRedefined, Opcodes.ASM9, cw, methodMatcher, context);
         reader.accept(cv, ClassReader.EXPAND_FRAMES);
         return cw.toByteArray();
     }

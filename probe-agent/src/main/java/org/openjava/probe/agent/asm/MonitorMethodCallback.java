@@ -8,7 +8,6 @@ import org.openjava.probe.agent.session.Session;
 
 public class MonitorMethodCallback implements ProbeCallback {
     private Class<?> clazz;
-    private int matchedMethods;
     private final Session session;
     private final MonitorAdviceParam param;
 
@@ -29,16 +28,5 @@ public class MonitorMethodCallback implements ProbeCallback {
         methodAdvice.session(session);
         MethodAdviceManager.getInstance().registerMethodAdvice(probeId, methodAdvice);
         session.addMethodAdvice(methodAdvice);
-        this.matchedMethods ++;
-    }
-
-    @Override
-    public Class<?> matchedClass() {
-        return this.clazz;
-    }
-
-    @Override
-    public int matchedMethods() {
-        return this.matchedMethods;
     }
 }

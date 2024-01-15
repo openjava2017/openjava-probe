@@ -1,5 +1,7 @@
 package org.openjava.probe.agent.command;
 
+import org.openjava.probe.agent.asm.ProbeCallback;
+import org.openjava.probe.agent.asm.ProbeMethodContext;
 import org.openjava.probe.agent.asm.WatchMethodCallback;
 import org.openjava.probe.agent.context.Context;
 import org.openjava.probe.agent.data.WatchAdviceParam;
@@ -21,13 +23,15 @@ public class WatchCommand extends ProbeCommand<WatchCommand.WatchParam> {
         Session session = context.session();
         if (session.compareAndSet(SessionState.IDLE, SessionState.BUSY)) {
             ClassTransformerManager transformerManager = ProbeAgentServer.getInstance().transformerManager();
-            WatchMethodCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param.maxTimes));
-            transformerManager.enhance(context.instrumentation(), param().className, param().methodName, callback);
-            if (callback.matchedMethods() > 0) {
+            ProbeCallback callback = new WatchMethodCallback(session, WatchAdviceParam.of(param.watchMode, param.maxTimes));
+            ProbeMethodContext probeContext = ProbeMethodContext.of(callback);
+
+            transformerManager.enhance(context.instrumentation(), param().className, param().methodName, probeContext);
+            if (probeContext.matchedMethods() > 0) {
                 session.write(Message.info(String.format("%s methods watched in %s class",
-                    callback.matchedMethods(), callback.matchedClass().getSimpleName())));
+                    probeContext.matchedMethods(), probeContext.matchedClass().getSimpleName())));
                 session.synchronize();
-                session.addCachedClass(callback.matchedClass());
+                session.addCachedClass(probeContext.matchedClass());
             } else {
                 session.setState(SessionState.IDLE);
                 session.write(Message.error("No methods enhanced"));

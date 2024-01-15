@@ -33,4 +33,8 @@ public abstract class ProbeTestService {
     }
 
     public abstract Object testProbeAPI(Object a,  Object b);
+
+    public void testTraceMethod() {
+        System.out.println("start");
+    }
 }
