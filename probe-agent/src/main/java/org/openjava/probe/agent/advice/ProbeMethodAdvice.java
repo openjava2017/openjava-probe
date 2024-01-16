@@ -23,6 +23,12 @@ public abstract class ProbeMethodAdvice implements SessionAware {
 
     public abstract void onExitMethodOnException(Object[] params, Throwable ex);
 
+    public void onBeforeInvoke(String owner, String name) {
+    }
+
+    public void onAfterInvoke(String owner, String name) {
+    }
+
     public void destroy() {
     }
 

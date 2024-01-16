@@ -8,11 +8,11 @@ import java.lang.reflect.Modifier;
 
 public class ProbeClassVisitor extends ClassVisitor {
 
-    private final Class clazz;
+    private final Class<?> clazz;
     private final Matcher<String> methodMatcher;
     private final ProbeMethodContext context;
 
-    public ProbeClassVisitor(Class clazz, int api, ClassVisitor cv, Matcher<String> methodMatcher, ProbeMethodContext context) {
+    public ProbeClassVisitor(Class<?> clazz, int api, ClassVisitor cv, Matcher<String> methodMatcher, ProbeMethodContext context) {
         super(api, cv);
         this.clazz = clazz;
         this.methodMatcher = methodMatcher;

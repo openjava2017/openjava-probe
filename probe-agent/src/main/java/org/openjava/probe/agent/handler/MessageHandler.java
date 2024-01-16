@@ -4,7 +4,7 @@ import org.openjava.probe.agent.context.Context;
 import org.openjava.probe.shared.message.codec.PayloadDecoder;
 
 public abstract class MessageHandler<T> implements Handler {
-    private byte[] payload;
+    private final byte[] payload;
 
     public MessageHandler(byte[] payload) {
         this.payload = payload;

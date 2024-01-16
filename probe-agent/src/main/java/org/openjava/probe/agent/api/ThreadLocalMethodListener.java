@@ -25,6 +25,7 @@ public class ThreadLocalMethodListener implements ProbeMethodListener {
             if (methodAdvices == null) {
                 methodAdvices = MethodAdviceManager.getInstance().queryMethodAdvices(probeId);
             }
+
             for (ProbeMethodAdvice methodAdvice : methodAdvices) {
                 methodAdvice.onExitMethod(params, returnObject);
             }
@@ -40,11 +41,34 @@ public class ThreadLocalMethodListener implements ProbeMethodListener {
             if (methodAdvices == null) {
                 methodAdvices = MethodAdviceManager.getInstance().queryMethodAdvices(probeId);
             }
+
             for (ProbeMethodAdvice methodAdvice : methodAdvices) {
                 methodAdvice.onExitMethodOnException(params, ex);
             }
         } finally {
             threadAdvices.remove();
+        }
+    }
+
+    public void onBeforeInvoke(int probeId, String owner, String name) {
+        List<ProbeMethodAdvice> methodAdvices = threadAdvices.get();
+        if (methodAdvices == null) {
+            methodAdvices = MethodAdviceManager.getInstance().queryMethodAdvices(probeId);
+        }
+
+        for (ProbeMethodAdvice methodAdvice : methodAdvices) {
+            methodAdvice.onBeforeInvoke(owner, name);
+        }
+    }
+
+    public void onAfterInvoke(int probeId, String owner, String name) {
+        List<ProbeMethodAdvice> methodAdvices = threadAdvices.get();
+        if (methodAdvices == null) {
+            methodAdvices = MethodAdviceManager.getInstance().queryMethodAdvices(probeId);
+        }
+
+        for (ProbeMethodAdvice methodAdvice : methodAdvices) {
+            methodAdvice.onAfterInvoke(owner, name);
         }
     }
 }

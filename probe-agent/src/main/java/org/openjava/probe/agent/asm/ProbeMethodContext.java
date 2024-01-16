@@ -26,14 +26,13 @@ public class ProbeMethodContext implements ProbeCallback {
     }
 
     public void onClassProbe(Class<?> clazz) {
-        callback.onClassProbe(clazz);
+        this.callback.onClassProbe(clazz);
         this.clazz = clazz;
     }
 
     @Override
     public void onMethodProbe(int probeId, String methodName, String methodDesc) {
-        callback.onMethodProbe(probeId, methodName, methodDesc);
-        this.matchedMethods ++;
+        this.callback.onMethodProbe(probeId, methodName, methodDesc);
     }
 
     public List<String> traceMethods() {
@@ -42,6 +41,10 @@ public class ProbeMethodContext implements ProbeCallback {
 
     public Class<?> matchedClass() {
         return this.clazz;
+    }
+
+    public void incMatchedMethods() {
+        this.matchedMethods ++;
     }
 
     public int matchedMethods() {

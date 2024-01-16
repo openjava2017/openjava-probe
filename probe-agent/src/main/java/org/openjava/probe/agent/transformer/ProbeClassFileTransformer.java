@@ -16,11 +16,11 @@ import java.security.ProtectionDomain;
 public class ProbeClassFileTransformer implements ClassFileTransformer {
     private static final Logger LOG = LoggerFactory.getLogger(ProbeClassFileTransformer.class);
 
-    private final Class clazz;
-    private final Matcher methodMatcher;
+    private final Class<?> clazz;
+    private final Matcher<String> methodMatcher;
     private final ProbeMethodContext context;
 
-    public ProbeClassFileTransformer(Class clazz, Matcher<String> methodMatcher, ProbeMethodContext context) {
+    public ProbeClassFileTransformer(Class<?> clazz, Matcher<String> methodMatcher, ProbeMethodContext context) {
         this.clazz = clazz;
         this.methodMatcher = methodMatcher;
         this.context = context;

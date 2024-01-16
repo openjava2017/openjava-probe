@@ -10,14 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserMessageHandler  {
-    private static final Map<Integer, Class<? extends MessageHandler>> handlers = new HashMap<>();
+    private static final Map<Integer, Class<? extends MessageHandler<?>>> handlers = new HashMap<>();
 
     static {
         handlers.put(MessageHeader.USER_COMMAND.getCode(), UserCommandHandler.class);
     }
 
-    private Context context;
-    private Message message;
+    private final Context context;
+    private final Message message;
 
     public UserMessageHandler(Context context, Message message) {
         this.context = context;
@@ -25,15 +25,15 @@ public class UserMessageHandler  {
     }
 
     public void handle() {
-        Class<? extends MessageHandler> clazz = handlers.get(message.header());
+        Class<? extends MessageHandler<?>> clazz = handlers.get(message.header());
         if (clazz == null) {
             context.session().write(Message.error(String.format("unrecognized user message: %s", message.header())));
             return;
         }
 
         try {
-            Constructor<? extends MessageHandler> constructor = clazz.getConstructor(byte[].class);
-            MessageHandler handler = constructor.newInstance(new Object[]{message.payload()});
+            Constructor<? extends MessageHandler<?>> constructor = clazz.getConstructor(byte[].class);
+            MessageHandler<?> handler = constructor.newInstance(new Object[]{message.payload()});
             handler.handle(context);
         } catch (ProbeServiceException sex) {
             context.session().write(Message.error(sex.getMessage()));

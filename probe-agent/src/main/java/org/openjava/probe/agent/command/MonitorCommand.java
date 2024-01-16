@@ -79,6 +79,8 @@ public class MonitorCommand extends ProbeCommand<MonitorCommand.MonitorParam> {
                         } catch (Exception ex) {
                             throw new IllegalArgumentException("Illegal monitor maxTime params");
                         }
+                    } else {
+                        throw new IllegalArgumentException("unknown monitor params: " + key);
                     }
                 } else {
                     throw new IllegalArgumentException("Illegal monitor command params");
