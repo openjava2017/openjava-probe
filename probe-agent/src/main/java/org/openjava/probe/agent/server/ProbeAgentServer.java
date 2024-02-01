@@ -14,13 +14,19 @@ import org.openjava.probe.core.api.ProbeMethodAPI;
 import org.openjava.probe.shared.ErrorCode;
 import org.openjava.probe.shared.LifeCycle;
 import org.openjava.probe.shared.exception.ProbeServiceException;
+import org.openjava.probe.shared.log.Level;
 import org.openjava.probe.shared.log.Logger;
 import org.openjava.probe.shared.log.LoggerFactory;
+import org.openjava.probe.shared.log.LoggingEvent;
+import org.openjava.probe.shared.log.impl.FileAppender;
+import org.openjava.probe.shared.log.impl.OutputStreamAppender;
+import org.openjava.probe.shared.log.impl.SimplePatternLayout;
 import org.openjava.probe.shared.message.Message;
 import org.openjava.probe.shared.nio.AbstractSocketServer;
 import org.openjava.probe.shared.nio.session.INioSession;
 import org.openjava.probe.shared.util.ProbeThreadFactory;
 
+import java.io.File;
 import java.lang.instrument.Instrumentation;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -66,6 +72,21 @@ public class ProbeAgentServer extends LifeCycle {
     }
 
     protected void doStart() throws Exception {
+        // init log system
+        String fileName = environment.getProperty("user.dir") + File.separator + "agent-server.log";
+        OutputStreamAppender<LoggingEvent> appender = new FileAppender<>(fileName, true);
+        appender.setLayout(new SimplePatternLayout());
+        appender.start();
+
+        Logger logger = LoggerFactory.getLogger("org.openjava.probe.shared");
+        logger.setLevel(Level.INFO);
+
+        logger = LoggerFactory.getLogger("org.openjava.probe");
+        logger.setLevel(Level.DEBUG);
+        logger.setAdditive(false);
+        logger.addAppender(appender);
+        // init log system end
+
         this.instrumentation.addTransformer(transformerManager, true);
         this.messageServer.start();
         ProbeMethodAPI.installMethodListener(new ThreadLocalMethodListener());
@@ -73,6 +94,7 @@ public class ProbeAgentServer extends LifeCycle {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 ProbeAgentServer.this.stop();
+                appender.stop();
             } catch (Exception ex) {
                 // Ignore it
             }
@@ -150,8 +172,6 @@ public class ProbeAgentServer extends LifeCycle {
                         if (Thread.interrupted()) {
                             break;
                         }
-                        ex.printStackTrace();
-                        //TODO: remove printStackTrace
                         LOG.error("User message handle exception", ex);
                     }
                 }

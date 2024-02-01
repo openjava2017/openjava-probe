@@ -2,7 +2,21 @@ package org.openjava.probe.shared.log;
 
 public interface Logger {
 
+    String ROOT_LOGGER_NAME = "ROOT";
+
     String getName();
+
+    void setLevel(Level newLevel);
+
+    Level getEffectiveLevel();
+
+    void setAdditive(boolean additive);
+
+    Logger getChildByName(final String childName);
+
+    Logger createChildByName(final String childName);
+
+    void addAppender(Appender<LoggingEvent> appender);
 
     boolean isTraceEnabled();
 
@@ -46,9 +60,9 @@ public interface Logger {
 
     void warn(String message, Object param);
 
-    void warn(String message, Object... params);
-
     void warn(String message, Object param1, Object param2);
+
+    void warn(String message, Object... params);
 
     void warn(String message, Throwable ex);
 
