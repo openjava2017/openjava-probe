@@ -13,6 +13,10 @@ allprojects {
         options.encoding = 'UTF-8'
     }
 
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+
     group = 'org.openjava'
     version = '1.0.0'
 
