@@ -68,7 +68,7 @@ public class ProbeMethodVisitor extends AdviceAdapter implements Opcodes {
 
     @Override
     public void visitMethodInsn(final int opcode, final String owner, final String name, final String descriptor, final boolean isInterface) {
-        if (traceMethods.contains(name)) {
+        if (traceMethods != null && traceMethods.contains(name)) {
             // try catch statement supported
 //            Label label0 = new Label();
 //            Label label1 = new Label();

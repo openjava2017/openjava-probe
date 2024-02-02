@@ -49,8 +49,14 @@ public class ProbeClassFileTransformer implements ClassFileTransformer {
             }
         };
 
-        ProbeClassVisitor cv = new ProbeClassVisitor(classRedefined, Opcodes.ASM9, cw, methodMatcher, context);
-        reader.accept(cv, ClassReader.EXPAND_FRAMES);
-        return cw.toByteArray();
+        try {
+            LOG.debug("transform class {} ...", className);
+            ProbeClassVisitor cv = new ProbeClassVisitor(classRedefined, Opcodes.ASM9, cw, methodMatcher, context);
+            reader.accept(cv, ClassReader.EXPAND_FRAMES);
+            return cw.toByteArray();
+        } catch (Exception ex) {
+            LOG.error("transform class " + className + " failed", ex);
+            return null;
+        }
     }
 }
